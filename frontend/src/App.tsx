@@ -16,7 +16,7 @@ export const App: React.FC = () => {
 
   const pageLabel: Record<TabId, string> = {
     repayment: repaymentView === 'simple' ? 'Repayments' : 'Repayments (adv)',
-    capacity: 'Borrowing capacity'
+    capacity: 'Borrowing Capacity'
   };
 
   return (
@@ -44,7 +44,7 @@ export const App: React.FC = () => {
                 margin: 0
               }}
             >
-              Home Loan Calculators
+              Financial Calculators
             </h1>
             <nav
               aria-label="Main tools"
@@ -56,7 +56,7 @@ export const App: React.FC = () => {
                 onClick={() => setTab('repayment')}
               />
               <NavPill
-                label="Borrowing capacity"
+                label="Borrowing Capacity"
                 active={tab === 'capacity'}
                 onClick={() => setTab('capacity')}
               />
@@ -158,7 +158,7 @@ export const App: React.FC = () => {
                 }}
               />
               <NavItem
-                label="Borrowing capacity"
+                label="Borrowing Capacity"
                 active={tab === 'capacity'}
                 onClick={() => {
                   setTab('capacity');
@@ -176,20 +176,37 @@ export const App: React.FC = () => {
           padding: '1.5rem'
         }}
       >
-        {tab === 'repayment' && (
-          repaymentView === 'simple' ? (
-            <RepaymentCalculator
-              mode="simple"
-              onModeChange={setRepaymentView}
-            />
-          ) : (
-            <AdvancedSimulator
-              mode="advanced"
-              onModeChange={setRepaymentView}
-            />
-          )
-        )}
-        {tab === 'capacity' && <BorrowingCapacity />}
+        <div
+          style={{
+            display:
+              tab === 'repayment' && repaymentView === 'simple'
+                ? 'block'
+                : 'none'
+          }}
+        >
+          <RepaymentCalculator
+            mode="simple"
+            onModeChange={setRepaymentView}
+          />
+        </div>
+        <div
+          style={{
+            display:
+              tab === 'repayment' && repaymentView === 'advanced'
+                ? 'block'
+                : 'none'
+          }}
+        >
+          <AdvancedSimulator
+            mode="advanced"
+            onModeChange={setRepaymentView}
+          />
+        </div>
+        <div
+          style={{ display: tab === 'capacity' ? 'block' : 'none' }}
+        >
+          <BorrowingCapacity />
+        </div>
       </main>
     </div>
   );
@@ -205,16 +222,7 @@ const NavPill: React.FC<NavPillProps> = ({ label, active, onClick }) => (
   <button
     type="button"
     onClick={onClick}
-    style={{
-      borderRadius: '9999px',
-      border: '1px solid',
-      borderColor: active ? '#2563eb' : '#d1d5db',
-      padding: '0.35rem 0.75rem',
-      fontSize: '0.9rem',
-      backgroundColor: active ? '#2563eb' : '#ffffff',
-      color: active ? '#ffffff' : '#111827',
-      cursor: 'pointer'
-    }}
+    className={`nav-pill${active ? ' nav-pill--active' : ''}`}
   >
     {label}
   </button>

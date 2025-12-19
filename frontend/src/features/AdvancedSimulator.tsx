@@ -673,7 +673,7 @@ const SummaryRow: React.FC<SummaryRowProps> = ({
         value={rowLabel}
       />
       <SummaryCard
-        label="Repayment"
+        label={frequencyLabel}
         value={formatCurrency(regularPayment)}
       />
       <SummaryCard

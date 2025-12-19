@@ -48,6 +48,15 @@ export const RepaymentOverTimeChart: React.FC<ChartProps> = ({ schedule, height 
         <YAxis
           tickFormatter={(v) => formatThousands(v)}
           tick={{ fill: 'var(--text-main)' }}
+          label={{
+            value: 'Repayment amount ($)',
+            angle: -90,
+            position: 'left',
+            offset: 0,
+            dy: -30,
+            dx: -10,
+            style: { fill: 'var(--text-main)' }
+          }}
         />
         <Tooltip formatter={(value: number) => formatCurrency(value as number)} />
         <Area
@@ -157,6 +166,8 @@ export const BalanceChart: React.FC<ChartProps> = ({ schedule, height, overlaySc
             angle: -90,
             position: 'left',
             offset: 0,
+            dy: -30,
+            dx: -10,
             style: { fill: 'var(--text-main)' }
           }}
         />

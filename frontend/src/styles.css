@@ -1,3 +1,8 @@
+body {
+  margin: 0;
+  background-color: #020617;
+}
+
 .app-main {
   display: flex;
   flex-direction: column;
@@ -12,6 +17,7 @@
   --control-bg: #ffffff;
   --control-border: #d1d5db;
   --summary-bg: #f9fafb;
+  --panel-bg: #ffffff;
 
   background-color: var(--bg);
   color: var(--text-main);
@@ -26,6 +32,7 @@
   --control-bg: #020617;
   --control-border: #4b5563;
   --summary-bg: #020617;
+  --panel-bg: #020617;
 
   background-color: var(--bg);
   color: var(--text-main);
@@ -69,6 +76,32 @@
   align-items: center;
   gap: 0.5rem;
   flex-wrap: wrap;
+}
+
+.nav-pill {
+  border-radius: 0.6rem;
+  border: 1px solid transparent;
+  padding: 0.3rem 1rem;
+  font-size: 0.9rem;
+  background-color: transparent;
+  color: var(--text-main);
+  cursor: pointer;
+  transition: background-color 120ms ease, color 120ms ease,
+    border-color 120ms ease, box-shadow 120ms ease;
+  display: inline-flex;
+  align-items: center;
+}
+
+.nav-pill:hover {
+  background-color: rgba(148, 163, 184, 0.12);
+  border-color: rgba(148, 163, 184, 0.4);
+}
+
+.nav-pill.nav-pill--active {
+  background-color: #1d4ed8;
+  color: #ffffff;
+  border-color: #1d4ed8;
+  box-shadow: 0 0 0 1px rgba(37, 99, 235, 0.25);
 }
 
 .nav-toggle {
