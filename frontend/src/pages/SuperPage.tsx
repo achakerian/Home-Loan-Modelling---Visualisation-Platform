@@ -1,20 +1,33 @@
 import React from 'react';
+import { FeatureAccordion, FeatureAccordionItem } from '../components/FeatureAccordion';
+
+const items: FeatureAccordionItem[] = [
+  {
+    badge: 'Contributions',
+    title: 'Super contributions tracker',
+    content: 'Plan voluntary and employer contributions with concessional cap guardrails.',
+  },
+  {
+    badge: 'Growth',
+    title: 'Investment mix',
+    content: 'Visualise how allocation choices impact long-term outcomes.',
+  },
+  {
+    badge: 'Retirement',
+    title: 'Drawdown simulator',
+    content: 'Model pension phase withdrawals with tax-free thresholds.',
+  },
+  {
+    badge: 'Roadmap',
+    title: 'Upcoming releases',
+    content: 'Peek at super calculators arriving next and how we will surface them.',
+  },
+];
 
 export const SuperPage: React.FC = () => {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-4">Superannuation</h1>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">
-          Super Contributions Calculator
-        </h2>
-        <p className="text-sm text-gray-600 mb-4">
-          Plan your superannuation contributions
-        </p>
-        <div className="text-center py-8 text-gray-500">
-          Calculator coming soon...
-        </div>
-      </div>
+    <div className="px-6 pb-32 pt-6">
+      <FeatureAccordion items={items} />
     </div>
   );
 };

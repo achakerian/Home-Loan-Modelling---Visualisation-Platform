@@ -1,20 +1,33 @@
 import React from 'react';
+import { FeatureAccordion, FeatureAccordionItem } from '../components/FeatureAccordion';
+
+const items: FeatureAccordionItem[] = [
+  {
+    badge: 'Income',
+    title: 'Pay calculator',
+    content: 'Calculate net income with instant PAYG, Medicare and HELP adjustments.',
+  },
+  {
+    badge: 'Bonuses',
+    title: 'Irregular income',
+    content: 'Simulate contracting gigs, overtime spikes and bonus-heavy structures.',
+  },
+  {
+    badge: 'Insights',
+    title: 'Tax year progress',
+    content: 'Visualise where you are in the financial year and upcoming obligations.',
+  },
+  {
+    badge: 'Future',
+    title: 'Roadmap banner',
+    content: 'Peek at the calculations landing next across pay and tax journeys.',
+  },
+];
 
 export const PayTaxPage: React.FC = () => {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-4">Pay & Tax</h1>
-      <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-        <h2 className="text-lg font-semibold text-gray-800 mb-4">
-          Pay Calculator
-        </h2>
-        <p className="text-sm text-gray-600 mb-4">
-          Calculate your take-home pay after tax
-        </p>
-        <div className="text-center py-8 text-gray-500">
-          Calculator coming soon...
-        </div>
-      </div>
+    <div className="px-6 pb-32 pt-6">
+      <FeatureAccordion items={items} />
     </div>
   );
 };

@@ -1,74 +1,39 @@
-import React, { useState } from 'react';
+import React from 'react';
 
 export const LoginPage: React.FC = () => {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
-
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault();
-    // Handle login logic here
-    console.log('Login attempt:', { email, password });
-  };
-
   return (
-    <div className="min-h-[calc(100vh-4rem)] flex items-center justify-center p-6">
-      <div className="w-full max-w-sm">
-        <div className="text-center mb-8">
-          <h1 className="text-2xl font-bold text-gray-900 mb-2">Welcome Back</h1>
-          <p className="text-sm text-gray-600">Sign in to your account</p>
-        </div>
-
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Email
-            </label>
-            <input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="you@example.com"
-              required
-            />
-          </div>
-
-          <div>
-            <label
-              htmlFor="password"
-              className="block text-sm font-medium text-gray-700 mb-1"
-            >
-              Password
-            </label>
-            <input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
-              placeholder="••••••••"
-              required
-            />
-          </div>
-
-          <button
-            type="submit"
-            className="w-full bg-blue-600 text-white py-2 px-4 rounded-lg font-medium hover:bg-blue-700 transition-colors"
-          >
-            Sign In
-          </button>
-        </form>
-
-        <p className="mt-6 text-center text-sm text-gray-600">
-          Don't have an account?{' '}
-          <button className="text-blue-600 font-medium hover:text-blue-700">
-            Sign up
-          </button>
+    <div className="px-6 pb-32 pt-6">
+      <div className="rounded-3xl border border-dashed border-slate-300 bg-white/70 p-8 text-center text-slate-700 shadow-inner backdrop-blur dark:border-slate-700 dark:bg-slate-900/70 dark:text-slate-200">
+        <p className="text-xs font-semibold uppercase tracking-[0.3em] text-slate-400 dark:text-slate-500">
+          Under construction
         </p>
+        <h1 className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
+          Sign-in hub coming soon
+        </h1>
+        <p className="mt-4 text-sm">
+          We’re exploring best-practice cyber security patterns, progressive authentication, and implementation partners to keep your data safe.
+        </p>
+        <div className="mt-6 grid gap-4 text-left sm:grid-cols-2">
+          <div className="rounded-2xl border border-slate-200/80 p-4 dark:border-slate-800/80">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-500">
+              Research focus
+            </p>
+            <ul className="mt-2 list-disc space-y-1 pl-4 text-sm">
+              <li>Modern passwordless experiences</li>
+              <li>Risk-based MFA support</li>
+              <li>Audit-friendly user management</li>
+            </ul>
+          </div>
+          <div className="rounded-2xl border border-slate-200/80 p-4 dark:border-slate-800/80">
+            <p className="text-xs font-semibold uppercase tracking-[0.2em] text-blue-500">
+              Implementation next</p>
+            <ul className="mt-2 list-disc space-y-1 pl-4 text-sm">
+              <li>Vendor selection for secure auth</li>
+              <li>Compliance + penetration testing</li>
+              <li>User data privacy review</li>
+            </ul>
+          </div>
+        </div>
       </div>
     </div>
   );

@@ -1,27 +1,39 @@
 import React from 'react';
+import { FeatureAccordion, FeatureAccordionItem } from '../components/FeatureAccordion';
+
+const items: FeatureAccordionItem[] = [
+  {
+    badge: 'Banner',
+    title: 'Roadmap banner',
+    content:
+      'Peek at the calculations that will land next and how we plan to surface them.',
+  },
+  {
+    badge: 'Mortgage',
+    title: 'Repayment calculator',
+    content: 'Mortgage stream refactors with linked repayment/offset charts.',
+  },
+  {
+    badge: 'Capacity',
+    title: 'Borrowing power',
+    content: 'Refined inputs covering buffers, HEM and instant context notes.',
+  },
+  {
+    badge: 'Guardrails',
+    title: 'DTI guardrails',
+    content: 'Custom DTI guardrails with context-aware messaging.',
+  },
+  {
+    badge: 'Tax',
+    title: 'Pay & tax module',
+    content: 'Modules that switch between PAYG, contracting and bonus-heavy structures.',
+  },
+];
 
 export const LoansPage: React.FC = () => {
   return (
-    <div className="p-6">
-      <h1 className="text-2xl font-bold text-gray-900 mb-4">Loans</h1>
-      <div className="space-y-4">
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <h2 className="text-lg font-semibold text-gray-800 mb-2">
-            Repayment Calculator
-          </h2>
-          <p className="text-sm text-gray-600">
-            Calculate your loan repayments
-          </p>
-        </div>
-        <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-4">
-          <h2 className="text-lg font-semibold text-gray-800 mb-2">
-            Borrowing Capacity
-          </h2>
-          <p className="text-sm text-gray-600">
-            Find out how much you can borrow
-          </p>
-        </div>
-      </div>
+    <div className="px-6 pb-32 pt-6">
+      <FeatureAccordion items={items} />
     </div>
   );
 };
