@@ -1,4 +1,4 @@
-# Home Loan Modelling & Visualisation Platform
+# Financial Calculator Mobile Website
 
 ## Project Overview
 
@@ -35,9 +35,9 @@ The project is structured as a small monorepo:
   - Repayment amount per period
   - Interest vs principal for each repayment
   - Remaining balance over time
-- Switch between:
-  - **Simple mode** – core inputs and charts
-  - **Advanced mode** – additional options and comparative scenarios
+- Two states on every screen:
+  - **Simple** – lightweight inputs and a condensed repayment summary optimised for quick mobile checks
+  - **Detailed** – exposes advanced knobs (offsets, extra repayments, schedule explorer) plus richer charts
 - Visualise results with graphs (via Recharts), including:
   - Balance over time
   - Interest paid vs principal repaid
@@ -51,6 +51,9 @@ The project is structured as a small monorepo:
   - Interest rate
   - Extra contributions
   - Loan term adjustments
+- Offer paired **Simple/Detailed** states:
+  - Simple focuses on one-off scenarios (base vs boosted) with quick savings highlights
+  - Detailed unlocks multiple scenario cards, downloadable tables and configurable heuristics
 
 ### Borrowing Capacity
 
@@ -61,6 +64,7 @@ The project is structured as a small monorepo:
   - Interest rate buffers
   - Loan term
 - See how changes in inputs affect the estimated borrowing limit
+- Provide **Simple** (headline borrowing estimate, sliders for key ratios) and **Detailed** (debt-to-income, HEM buffers, stress test visuals) states
 
 ### Pay & Tax Calculator (Australia)
 
@@ -86,6 +90,7 @@ The project is structured as a small monorepo:
     (optionally) superannuation
   - **Tax by threshold** chart – shows how each tax band contributes to
     total tax and other deductions
+- Each mobile view has Simple toggle (headline net pay, donut) and Detailed toggle (frequency drill-down, marginal tax ladder)
 
 ### Super Contributions
 
@@ -95,6 +100,7 @@ The project is structured as a small monorepo:
   - Salary sacrifice amounts
 - Understand how employer and voluntary contributions interact with
   gross salary and tax
+- Toggle Simple (package snapshot and required sacrifice) vs Detailed (concessional caps, yearly projections, bar charts)
 
 ### Theming and Navigation
 
@@ -300,4 +306,3 @@ for future expansion.
   and screen-reader labelling for all charts and controls.
 - **Internationalisation** – support additional locales and currencies
   while keeping Australian tax logic separate.
-

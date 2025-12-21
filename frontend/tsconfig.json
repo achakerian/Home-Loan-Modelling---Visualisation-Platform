@@ -1,0 +1,14 @@
+{
+  "extends": "../tsconfig.base.json",
+  "compilerOptions": {
+    "baseUrl": "./src",
+    "allowJs": false,
+    "paths": {
+      "@calc-engine/core": ["../calc-engine/src"]
+    }
+  },
+  "include": ["src"],
+  "references": [
+    { "path": "../calc-engine" }
+  ]
+}
