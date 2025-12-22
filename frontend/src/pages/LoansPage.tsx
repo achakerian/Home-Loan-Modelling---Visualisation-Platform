@@ -11,11 +11,6 @@ const items: FeatureAccordionItem[] = [
     content: <LoanCalculatorCard />,
   },
   {
-    badge: 'Mortgage',
-    title: 'Loan Calculator (Detailed)',
-    content: <LoanCalculatorCard />,
-  },
-  {
     badge: 'Capacity',
     title: 'Borrowing Power',
     content: <BorrowingPowerSection />,
