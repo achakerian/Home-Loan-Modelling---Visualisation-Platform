@@ -177,24 +177,25 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
       <CollapsibleContainer title="Original Loan Details">
         <div className="flex justify-between text-sm font-semibold text-slate-500">
           <span className="w-1/2 text-center">Loan amount</span>
-          <span className="w-1/2 text-center pl-8">Repayment</span>
+          <span className="w-1/2 text-center">Repayment</span>
         </div>
         <div className="flex items-center justify-between px-1 py-0">
-          <div className="inline-flex rounded-2xl border border-slate-300 px-3 py-2 text-base font-semibold dark:border-slate-600">
-            <input
-              type="text"
-              value={formatCurrency(loanAmount)}
-              onChange={(e) => {
-                const digitsOnly = e.target.value.replace(/[^0-9]/g, '');
-                const normalized = stripLeadingZeros(digitsOnly);
-                onLoanAmountChange(normalized === '' ? 0 : Number(normalized));
-              }}
-              className="w-full bg-transparent text-slate-900 focus:outline-none dark:text-white"
-              style={{ maxWidth: '9ch' }}
-              aria-label="Loan amount"
-            />
+          <div className="flex w-1/2 justify-center">
+            <div className="inline-flex rounded-2xl border border-slate-300 px-3 py-2 text-base font-semibold dark:border-slate-600">
+              <input
+                type="text"
+                value={formatCurrency(loanAmount)}
+                onChange={(e) => {
+                  const digitsOnly = e.target.value.replace(/[^0-9]/g, '');
+                  const normalized = stripLeadingZeros(digitsOnly);
+                  onLoanAmountChange(normalized === '' ? 0 : Number(normalized));
+                }}
+                className="w-full bg-transparent text-slate-900 focus:outline-none dark:text-white"
+                aria-label="Loan amount"
+              />
+            </div>
           </div>
-          <div className="text-right text-base font-semibold text-slate-900 dark:text-white">
+          <div className="w-1/2 text-center text-base font-semibold text-slate-900 dark:text-white">
             {formatCurrency(Math.round(repaymentPerPeriod))}
             <span className="ml-1 text-sm font-medium text-slate-500 dark:text-slate-400">/{shortLabel}</span>
           </div>
