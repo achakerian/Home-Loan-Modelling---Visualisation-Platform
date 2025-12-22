@@ -117,16 +117,17 @@ export const TitleHeading: React.FC = () => {
   return (
     <header
       ref={headerRef}
-      className={`sticky top-0 z-40 mb-2 overflow-hidden bg-gradient-to-br from-brand-950 via-brand-800 to-brand-950 px-6 text-white shadow-xl transition-all ${
+      className={`sticky top-0 z-40 mb-2 overflow-hidden bg-gradient-to-br from-brand-950 via-brand-800 to-brand-950 text-white shadow-xl transition-all ${
         isCondensed ? 'py-3' : 'py-6'
       }`}
     >
       <div className="pointer-events-none absolute -left-12 -top-10 h-48 w-48 rounded-full border border-white/10"></div>
       <div className="pointer-events-none absolute -right-8 top-0 h-56 w-56 rounded-full border border-white/5"></div>
 
-      <div
-        className={`relative flex gap-4 ${isCondensed ? 'items-center' : 'items-start'}`}
-      >
+      <div className="mx-auto max-w-md px-6">
+        <div
+          className={`relative flex gap-4 ${isCondensed ? 'items-center' : 'items-start'}`}
+        >
         <div className="flex-1">
           <h1 className="whitespace-nowrap text-[clamp(1.25rem,3vw,1.85rem)] font-semibold leading-tight text-white">
             Australian Financial Calculator
@@ -167,6 +168,7 @@ export const TitleHeading: React.FC = () => {
             </span>
           )}
         </button>
+        </div>
       </div>
     </header>
   );

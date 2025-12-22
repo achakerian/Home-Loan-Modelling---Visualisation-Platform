@@ -20,7 +20,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`px-6 pb-32 pt-4 ${className}`.trim()}>
+    <div className={`mx-auto max-w-md px-6 pb-32 pt-4 ${className}`.trim()}>
       {children}
     </div>
   );
