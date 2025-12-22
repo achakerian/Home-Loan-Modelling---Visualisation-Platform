@@ -13,11 +13,12 @@ export const App: React.FC = () => {
     <BrowserRouter basename={basename}>
       <Routes>
         <Route path="/" element={<MainLayout />}>
-          <Route index element={<Navigate to="/pay-tax" replace />} />
+          <Route index element={<Navigate to="/loans" replace />} />
           <Route path="loans" element={<LoansPage />} />
           <Route path="pay-tax" element={<PayTaxPage />} />
           <Route path="super" element={<SuperPage />} />
           <Route path="login" element={<LoginPage />} />
+          <Route path="*" element={<Navigate to="/loans" replace />} />
         </Route>
       </Routes>
     </BrowserRouter>
