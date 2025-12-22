@@ -7,8 +7,10 @@ import { SuperPage } from './pages/SuperPage';
 import { LoginPage } from './pages/LoginPage';
 
 export const App: React.FC = () => {
+  const basename = import.meta.env.BASE_URL;
+
   return (
-    <BrowserRouter>
+    <BrowserRouter basename={basename}>
       <Routes>
         <Route path="/" element={<MainLayout />}>
           <Route index element={<Navigate to="/pay-tax" replace />} />
