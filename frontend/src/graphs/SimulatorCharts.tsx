@@ -11,6 +11,7 @@ import {
   Bar
 } from 'recharts';
 import { PeriodRow } from 'calc-engine';
+import { formatCurrency, formatThousands } from '../lib/formatters';
 
 interface ChartProps {
   schedule: PeriodRow[];
@@ -105,19 +106,4 @@ export const ExtraRepaymentsChart: React.FC<ChartProps> = ({ schedule }) => {
     </ResponsiveContainer>
   );
 };
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-AU', {
-    style: 'currency',
-    currency: 'AUD',
-    maximumFractionDigits: 0
-  }).format(value);
-}
-
-function formatThousands(value: number): string {
-  if (value >= 1000) {
-    return `${Math.round(value / 1000)}k`;
-  }
-  return `${Math.round(value)}`;
-}
 

@@ -1,40 +1,26 @@
 import React from 'react';
 import { FeatureAccordion, FeatureAccordionItem } from '../components/FeatureAccordion';
 import { PageContainer } from '../components/PageContainer';
+import { LoanCalculatorCard } from '../features/LoanCalculatorCard';
+import { BorrowingPowerSection } from '../features/BorrowingPowerSection';
 
 const items: FeatureAccordionItem[] = [
   {
-    badge: 'Banner',
-    title: 'Roadmap banner',
-    content:
-      'Peek at the calculations that will land next and how we plan to surface them.',
-  },
-  {
     badge: 'Mortgage',
-    title: 'Repayment calculator',
-    content: 'Mortgage stream refactors with linked repayment/offset charts.',
+    title: 'Loan Calculator',
+    content: <LoanCalculatorCard />,
   },
   {
     badge: 'Capacity',
-    title: 'Borrowing power',
-    content: 'Refined inputs covering buffers, HEM and instant context notes.',
-  },
-  {
-    badge: 'Guardrails',
-    title: 'DTI guardrails',
-    content: 'Custom DTI guardrails with context-aware messaging.',
-  },
-  {
-    badge: 'Tax',
-    title: 'Pay & tax module',
-    content: 'Modules that switch between PAYG, contracting and bonus-heavy structures.',
+    title: 'Borrowing Power',
+    content: <BorrowingPowerSection />,
   },
 ];
 
 export const LoansPage: React.FC = () => {
   return (
     <PageContainer>
-      <FeatureAccordion items={items} />
+      <FeatureAccordion items={items} initialOpen={null} />
     </PageContainer>
   );
 };

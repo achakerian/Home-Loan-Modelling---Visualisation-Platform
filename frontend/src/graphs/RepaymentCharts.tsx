@@ -12,6 +12,7 @@ import {
   TooltipProps
 } from 'recharts';
 import { PeriodRow } from 'calc-engine';
+import { formatCurrency, formatThousands } from '../lib/formatters';
 
 interface ChartProps {
   schedule: PeriodRow[];
@@ -65,7 +66,7 @@ export const RepaymentOverTimeChart: React.FC<ChartProps> = ({ schedule, height 
           stackId="1"
           stroke="#60a5fa"
           fill="rgba(37, 99, 235, 0.25)"
-          name="Principal"
+          name="Principle"
         />
         <Area
           type="monotone"
@@ -127,55 +128,49 @@ export const BalanceChart: React.FC<ChartProps> = ({ schedule, height, overlaySc
 
   // Choose X-axis ticks by years rather than raw months
   const maxYear = Math.ceil(maxMonth / 12);
-  const approxTickCount = 6;
-  const yearStep = Math.max(1, Math.round(maxYear / approxTickCount));
+  const yearStep = 5;
   const ticks: number[] = [];
   for (let year = 0; year <= maxYear; year += yearStep) {
     ticks.push(year * 12);
-  }
-  const finalYearMonth = maxYear * 12;
-  if (!ticks.includes(finalYearMonth)) {
-    ticks.push(finalYearMonth);
   }
 
   const chartHeight = height ?? 250;
 
   return (
     <ResponsiveContainer width="100%" height={chartHeight}>
-      <AreaChart data={data} margin={{ top: 8, right: 16, bottom: 40, left: 48 }}>
+      <AreaChart data={data} margin={{ top: 8, right: 16, bottom: 40, left: 0 }}>
         <XAxis
           dataKey="monthIndex"
           type="number"
           domain={[0, maxMonth]}
           tickFormatter={(v) => `${Math.round(v / 12)}`}
           ticks={ticks}
-          tick={{ fill: 'var(--text-main)' }}
+          tick={{ fill: 'var(--text-main)', fontSize: 10 }}
           label={{
             value: 'Time (years)',
             position: 'bottom',
-            offset: 10,
-            style: { fill: 'var(--text-main)' }
+            offset: 0,
+            style: { fill: 'var(--text-main)', fontSize: 10 }
           }}
         />
         <YAxis
           tickFormatter={(v) => formatThousands(v)}
           domain={[0, maxPrincipal]}
-          tick={{ fill: 'var(--text-main)' }}
+          tick={{ fill: 'var(--text-main)', angle: -45, textAnchor: 'end', fontSize: 10 }}
+          width={50}
           label={{
             value: 'Balance ($)',
             angle: -90,
             position: 'left',
-            offset: 0,
-            dy: -30,
-            dx: -10,
-            style: { fill: 'var(--text-main)' }
+            offset: -10,
+            style: { fill: 'var(--text-main)', fontSize: 10 }
           }}
         />
         <Tooltip content={<BalanceTooltip />} />
         <Area
           type="monotone"
           dataKey="principalArea"
-          name="Principal remaining"
+          name="Principle remaining"
           stroke="#60a5fa"
           fill="rgba(37, 99, 235, 0.25)"
           stackId="1"
@@ -192,7 +187,7 @@ export const BalanceChart: React.FC<ChartProps> = ({ schedule, height, overlaySc
           <Line
             type="monotone"
             dataKey="baselinePrincipalRemaining"
-            name="Principal without extras"
+            name="Principle without extras"
             stroke="#4b5563"
             dot={false}
             strokeDasharray="4 4"
@@ -331,18 +326,3 @@ export const CumulativeInterestChart: React.FC<ChartProps> = ({ schedule }) => {
     </ResponsiveContainer>
   );
 };
-
-function formatCurrency(value: number): string {
-  return new Intl.NumberFormat('en-AU', {
-    style: 'currency',
-    currency: 'AUD',
-    maximumFractionDigits: 0
-  }).format(value);
-}
-
-function formatThousands(value: number): string {
-  if (value >= 1000) {
-    return `${Math.round(value / 1000)}k`;
-  }
-  return `${Math.round(value)}`;
-}

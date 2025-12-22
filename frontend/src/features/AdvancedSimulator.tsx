@@ -7,6 +7,7 @@ import {
   ExtraRule
 } from 'calc-engine';
 import { BalanceChart } from '../graphs/RepaymentCharts';
+import { formatCurrency } from '../lib/formatters';
 
 const DEFAULT_START_DATE = new Date().toISOString().slice(0, 10);
 
@@ -730,14 +731,7 @@ function formatDateShort(dateIso: string): string {
   return `${day}/${month}/${year}`;
 }
 
-function formatCurrency(value: number): string {
-  if (!Number.isFinite(value)) return '-';
-  return new Intl.NumberFormat('en-AU', {
-    style: 'currency',
-    currency: 'AUD',
-    maximumFractionDigits: 0
-  }).format(value);
-}
+// formatCurrency imported from lib/formatters
 
 interface TableProps {
   schedule: ReturnType<typeof generateAmortisation>['schedule'];

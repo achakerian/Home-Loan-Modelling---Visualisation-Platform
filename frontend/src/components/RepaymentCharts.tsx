@@ -22,7 +22,7 @@ import { PeriodRow } from 'calc-engine';
  * 3. CumulativeInterestChart - Line chart showing cumulative interest paid
  *
  * Uses brand color palette from DESIGN_SYSTEM.md:
- * - brand-500 (#4A6FA5) - Principal (primary blue)
+ * - brand-500 (#4A6FA5) - Principle (primary blue)
  * - Orange (#fb923c) - Interest
  * - Slate-600 (#475569) - Baseline/secondary
  *
@@ -151,7 +151,7 @@ const BalanceTooltip: React.FC<TooltipProps<number, string>> = ({
         <span className="text-xs text-slate-400">({Math.round(interestPct)}%)</span>
       </div>
       <div className="text-sm" style={{ color: COLORS.principal }}>
-        Principal reduction:{' '}
+        Principle reduction:{' '}
         <span className="font-semibold">
           {formatCurrency(principal)}
         </span>{' '}
@@ -200,7 +200,7 @@ export const RepaymentOverTimeChart: React.FC<ChartProps> = ({
           stackId="1"
           stroke={COLORS.principal}
           fill={COLORS.principalFill}
-          name="Principal"
+          name="Principle"
         />
         <Area
           type="monotone"
@@ -318,7 +318,7 @@ export const BalanceChart: React.FC<ChartProps> = ({
         <Area
           type="monotone"
           dataKey="principalArea"
-          name="Principal remaining"
+          name="Principle remaining"
           stroke={COLORS.principal}
           fill={COLORS.principalFill}
           stackId="1"
@@ -335,7 +335,7 @@ export const BalanceChart: React.FC<ChartProps> = ({
           <Line
             type="monotone"
             dataKey="baselinePrincipalRemaining"
-            name="Principal without extras"
+            name="Principle without extras"
             stroke={COLORS.baseline}
             dot={false}
             strokeDasharray="4 4"

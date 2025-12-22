@@ -24,6 +24,67 @@ const getInitialDarkMode = () => {
 export const TitleHeading: React.FC = () => {
   const [isDarkMode, setIsDarkMode] = React.useState<boolean>(getInitialDarkMode);
   const [isCondensed, setIsCondensed] = React.useState(false);
+  const DEFAULT_DISCLAIMER = "There's always a disclaimer";
+  const [disclaimer, setDisclaimer] = React.useState(DEFAULT_DISCLAIMER);
+  const resetTimeoutRef = React.useRef<NodeJS.Timeout | null>(null);
+  const headerRef = React.useRef<HTMLElement | null>(null);
+
+  const disclaimers = React.useMemo(
+    () => [
+      "This is not financial advice. It's just a spreadsheet with a superiority complex pretending to be helpful.",
+      'Results are based on assumptions so rosy they could star in a Bunnings ad. Your actual life may differ.',
+      'Projections are for entertainment purposes only – think of them as a financial horoscope with better maths.',
+      'We accept no responsibility if you follow this calculator and end up eating Vegemite sandwiches for the rest of your days.',
+      'Past performance is not indicative of future results. Neither is this tool. Consult a qualified financial adviser before you accidentally become a tradie legend.',
+    ],
+    []
+  );
+
+  const handleDisclaimerClick = () => {
+    const randomIndex = Math.floor(Math.random() * disclaimers.length);
+    setDisclaimer(disclaimers[randomIndex]);
+
+    if (resetTimeoutRef.current) {
+      clearTimeout(resetTimeoutRef.current);
+    }
+
+    resetTimeoutRef.current = setTimeout(() => {
+      setDisclaimer(DEFAULT_DISCLAIMER);
+      resetTimeoutRef.current = null;
+    }, 7000);
+  };
+
+  React.useEffect(() => {
+    return () => {
+      if (resetTimeoutRef.current) {
+        clearTimeout(resetTimeoutRef.current);
+      }
+    };
+  }, []);
+
+  const updateHeaderOffset = React.useCallback(() => {
+    if (typeof document === 'undefined') {
+      return;
+    }
+
+    const height = headerRef.current?.offsetHeight ?? 0;
+    const total = Math.max(0, height - 4);
+    document.documentElement.style.setProperty('--title-heading-offset', `${total}px`);
+  }, []);
+
+  React.useLayoutEffect(() => {
+    updateHeaderOffset();
+  }, [isCondensed, updateHeaderOffset]);
+
+  React.useEffect(() => {
+    if (typeof window === 'undefined') {
+      return;
+    }
+
+    const handleResize = () => updateHeaderOffset();
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, [updateHeaderOffset]);
 
   React.useEffect(() => {
     if (typeof document === 'undefined') {
@@ -45,16 +106,18 @@ export const TitleHeading: React.FC = () => {
 
     const updateState = () => {
       setIsCondensed(window.scrollY > 16);
+      requestAnimationFrame(updateHeaderOffset);
     };
 
     updateState();
     window.addEventListener('scroll', updateState, { passive: true } as AddEventListenerOptions);
     return () => window.removeEventListener('scroll', updateState);
-  }, []);
+  }, [updateHeaderOffset]);
 
   return (
     <header
-      className={`sticky top-0 z-40 mb-6 overflow-hidden bg-gradient-to-br from-brand-950 via-brand-800 to-brand-950 px-6 text-white shadow-xl transition-all ${
+      ref={headerRef}
+      className={`sticky top-0 z-40 mb-2 overflow-hidden bg-gradient-to-br from-brand-950 via-brand-800 to-brand-950 px-6 text-white shadow-xl transition-all ${
         isCondensed ? 'py-3' : 'py-6'
       }`}
     >
@@ -69,12 +132,16 @@ export const TitleHeading: React.FC = () => {
             Australian Financial Calculator
           </h1>
           {!isCondensed && (
-            <div className="mt-3 flex items-center gap-2 text-sm text-white/80">
-              <span>There's always a disclaimer</span>
+            <button
+              type="button"
+              onClick={handleDisclaimerClick}
+              className="mt-3 flex items-center gap-2 text-left text-sm text-white/80 transition hover:text-white"
+            >
+              <span>{disclaimer}</span>
               <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/25 bg-white/10">
                 <InfoIcon className="h-3.5 w-3.5" />
               </span>
-            </div>
+            </button>
           )}
         </div>
 
@@ -83,17 +150,19 @@ export const TitleHeading: React.FC = () => {
           aria-pressed={isDarkMode}
           aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
           onClick={() => setIsDarkMode((prev) => !prev)}
-          className={`relative flex flex-col items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur transition-all hover:bg-white/20 ${
-            isCondensed ? 'h-[34px] w-[34px]' : 'h-14 w-14'
+          className={`relative flex w-12 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur transition-all hover:bg-white/20 ${
+            isCondensed ? 'h-12' : 'h-14'
           }`}
         >
-          {isDarkMode ? (
-            <MoonIcon className={`${isCondensed ? 'h-[15px] w-[15px]' : 'h-6 w-6'} text-blue-100`} />
-          ) : (
-            <SunIcon className={`${isCondensed ? 'h-[15px] w-[15px]' : 'h-6 w-6'} text-amber-300`} />
-          )}
+          <div className={!isCondensed ? '-mt-1' : ''}>
+            {isDarkMode ? (
+              <MoonIcon className="h-6 w-6 text-blue-100" />
+            ) : (
+              <SunIcon className="h-6 w-6 text-amber-300" />
+            )}
+          </div>
           {!isCondensed && (
-            <span className="mt-1 text-[9px] font-semibold tracking-wide text-white/70">
+            <span className="pointer-events-none absolute bottom-1 text-[9px] font-semibold tracking-wide text-white/80">
               {isDarkMode ? 'DARK' : 'LIGHT'}
             </span>
           )}

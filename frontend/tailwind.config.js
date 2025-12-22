@@ -14,6 +14,7 @@ export default {
           500: '#4A6FA5', // Medium blue - primary interactive elements
           50: '#E9EEF4',  // Very light blue-gray - light mode background
           25: '#F5F7FA',  // Almost white - light mode surfaces/cards
+          accent: '#D6B56A', // Golden highlight accent
         },
       },
     },
