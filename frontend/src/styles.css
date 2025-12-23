@@ -11,7 +11,7 @@
 
   body {
     font-family: 'Inter', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
-    @apply m-0 min-h-screen bg-slate-100 text-slate-900 transition-colors duration-300 dark:bg-dark-base dark:text-dark-text;
+    @apply m-0 min-h-screen bg-slate-100 text-slate-900 transition-colors duration-300;
   }
 
   input,
