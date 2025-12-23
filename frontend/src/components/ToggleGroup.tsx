@@ -26,14 +26,16 @@ export function ToggleGroup<T extends string>({ label, options, value, onChange,
   return (
     <div className="flex flex-col items-center gap-2">
       {label && <p className="text-sm font-medium text-slate-500">{label}</p>}
-      <div className="inline-flex items-center justify-center gap-1 rounded-2xl bg-slate-100 px-1 py-0.5 text-xs font-semibold dark:bg-brand-900/60">
+      <div className="inline-flex items-center justify-center gap-1 rounded-2xl bg-slate-100 px-1 py-0.5 text-xs font-semibold dark:bg-dark-surfaceAlt">
         {options.map((option) => (
           <button
             key={option.value}
             type="button"
             onClick={() => onChange(option.value)}
             className={`rounded-full ${sizing.padding} ${sizing.text} transition ${
-              value === option.value ? 'bg-brand-800 text-white' : 'text-slate-600'
+              value === option.value
+                ? 'bg-brand-500 text-white shadow-sm shadow-brand-500/30'
+                : 'text-slate-600 hover:text-slate-900 dark:text-dark-muted dark:hover:text-dark-text'
             }`}
           >
             {option.label}

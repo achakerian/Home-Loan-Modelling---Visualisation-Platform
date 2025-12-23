@@ -42,7 +42,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
         min={min}
         max={max}
         step={step}
-        className="mt-1 w-full rounded-2xl border border-slate-300 px-3 py-2 text-base font-semibold text-slate-800 focus:outline-none dark:border-slate-600 dark:bg-transparent dark:text-white"
+        className="mt-1 w-full rounded-2xl border border-slate-300 px-3 py-2 text-base font-semibold text-slate-800 focus:outline-none dark:border-dark-border dark:bg-transparent dark:text-white"
       />
     </label>
   );

@@ -33,12 +33,12 @@ export const FeatureAccordion: React.FC<FeatureAccordionProps> = ({
         return (
           <div
             key={item.title}
-            className="rounded-2xl border-2 border-slate-300 bg-white p-4 shadow-md transition hover:shadow-lg dark:border-slate-800 dark:bg-brand-800"
+            className="rounded-2xl border-2 border-slate-300 bg-white p-4 shadow-md transition hover:shadow-lg dark:border-dark-border dark:bg-dark-surface"
           >
             <div
               className={`${
                 isOpen && hasContent
-                  ? 'sticky z-20 -mx-4 px-4 py-2 bg-white dark:bg-brand-800'
+                  ? 'sticky z-20 -mx-4 px-4 py-2 bg-white dark:bg-dark-surfaceAlt'
                   : ''
               }`}
               style={
@@ -54,7 +54,7 @@ export const FeatureAccordion: React.FC<FeatureAccordionProps> = ({
               >
                 <div>
                   {item.badge && (
-                    <p className="text-xs font-semibold text-slate-500 dark:text-slate-400" aria-label="Section badge">
+                    <p className="text-xs font-semibold text-slate-500 dark:text-dark-muted" aria-label="Section badge">
                       {item.badge}
                     </p>
                   )}
@@ -76,13 +76,13 @@ export const FeatureAccordion: React.FC<FeatureAccordionProps> = ({
                 paragraphs.map((paragraph, idx) => (
                   <p
                     key={idx}
-                    className="mb-3 text-sm text-slate-700 last:mb-0 dark:text-slate-300"
+                    className="mb-3 text-sm text-slate-700 last:mb-0 dark:text-dark-muted"
                   >
                     {paragraph}
                   </p>
                 ))
               ) : (
-                <div className="py-1 text-slate-900 dark:text-white">
+                <div className="py-1 text-slate-900 dark:text-dark-text">
                   {item.content}
                 </div>
               )}

@@ -3,13 +3,13 @@ import { CollapsibleContainer } from '../components/CollapsibleContainer';
 import { BorrowingPowerCard } from './BorrowingPowerCard';
 
 const BorrowingPowerArticle: React.FC = () => (
-  <div className="space-y-4 text-sm text-slate-600 dark:text-slate-300">
+  <div className="space-y-4 text-sm text-slate-600 dark:text-dark-muted">
     <p>
       This guide shares the simplified approach behind our calculator. We take your household income, apply
       a conservative shading factor, subtract a floor for living expenses, then test repayments at a buffered
       interest rate that sits above today&apos;s market.
     </p>
-    <ul className="list-disc space-y-1 pl-5 text-xs text-slate-500 dark:text-slate-400">
+    <ul className="list-disc space-y-1 pl-5 text-xs text-slate-500 dark:text-dark-muted">
       <li>
         Income is shaded (usually 70-90%) to factor in variability and overtime risk.
       </li>

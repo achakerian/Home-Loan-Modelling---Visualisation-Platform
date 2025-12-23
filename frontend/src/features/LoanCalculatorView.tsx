@@ -42,7 +42,7 @@ const frequencies: { id: RepaymentFrequency; label: string; short: string }[] = 
 
 const frequencyOptions = frequencies.map(({ id, label }) => ({ value: id, label }));
 const repaymentTypeOptions = [
-  { value: 'principal' as const, label: 'Principal & Interest' },
+  { value: 'principal' as const, label: 'Principle & Interest' },
   { value: 'interestOnly' as const, label: 'Interest Only' },
 ];
 
@@ -181,7 +181,7 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
         </div>
         <div className="flex items-center justify-between px-1 py-0">
           <div className="flex w-1/2 justify-center">
-            <div className="inline-flex rounded-2xl border border-slate-300 px-3 py-2 text-base font-semibold dark:border-slate-600">
+            <div className="inline-flex rounded-2xl border border-slate-300 px-3 py-2 text-base font-semibold dark:border-dark-border">
               <input
                 type="text"
                 value={formatCurrency(loanAmount)}
@@ -197,7 +197,7 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
           </div>
           <div className="w-1/2 text-center text-base font-semibold text-slate-900 dark:text-white">
             {formatCurrency(Math.round(repaymentPerPeriod))}
-            <span className="ml-1 text-sm font-medium text-slate-500 dark:text-slate-400">/{shortLabel}</span>
+            <span className="ml-1 text-sm font-medium text-slate-500 dark:text-dark-muted">/{shortLabel}</span>
           </div>
         </div>
         <div className="mt-4 space-y-2 text-center">
@@ -232,74 +232,6 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
 
       <div className="mt-6">
         <CollapsibleContainer
-          title="Loan Balance Over Time"
-          padded={false}
-          collapsible
-          defaultOpen={false}
-          accent="blue"
-        >
-          <p className="text-xs text-slate-500">
-            Hover over the graph to see the breakdown between principle vs interest for each month of the loan.
-          </p>
-          <BalanceChart schedule={schedule} height={300} />
-        </CollapsibleContainer>
-      </div>
-
-      <div className="mt-6">
-        <CollapsibleContainer
-          title="Detailed Repayment Breakdown"
-          collapsible
-          defaultOpen={false}
-          padded={false}
-          accent="blue"
-        >
-          <ToggleGroup
-            options={breakdownViewOptions}
-            value={breakdownView}
-            onChange={onBreakdownViewChange}
-          />
-          <div className="max-h-[360px] overflow-y-auto">
-            <table className="mt-3 w-full table-fixed text-left text-xs text-slate-600 dark:text-slate-200">
-              <thead>
-                <tr className="text-slate-400">
-                  <th className="pb-2 pr-3">{breakdownView === 'monthly' ? 'Month' : 'Year'}</th>
-                  <th className="pb-2 pl-4">Principle</th>
-                  <th className="pb-2 pl-4">Interest</th>
-                  <th className="pb-2 text-right">Loan remaining</th>
-                </tr>
-              </thead>
-              <tbody>
-                {breakdownRows.map((row, index) => (
-                  <tr key={`${row.label}-${index}`} className="border-t border-slate-100 dark:border-slate-800">
-                    <td className="py-2 pr-3 font-semibold">
-                      {breakdownView === 'monthly' ? (
-                        <>
-                          <div>{row.monthLabel}</div>
-                          <div className="text-[11px] text-slate-400">{row.yearLabel}</div>
-                        </>
-                      ) : (
-                        <div>{row.label}</div>
-                      )}
-                    </td>
-                    <td className="py-2 pl-4">
-                      {formatCurrency(row.principal)}
-                      <div className="text-[10px] text-slate-400">{row.principalPct?.toFixed(0)}%</div>
-                    </td>
-                    <td className="py-2 pl-4">
-                      {formatCurrency(row.interest)}
-                      <div className="text-[10px] text-slate-400">{row.interestPct?.toFixed(0)}%</div>
-                    </td>
-                    <td className="py-2 text-right">{formatCurrency(row.balance)}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </CollapsibleContainer>
-      </div>
-
-      <div className="mt-6">
-        <CollapsibleContainer
           title="Repayments or Rate Change"
           collapsible
           defaultOpen={false}
@@ -318,13 +250,13 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
           </div>
           <div className="mt-3 space-y-3">
             {additionalRepayments.length === 0 && (
-              <p className="pl-3 text-xs text-slate-500 dark:text-slate-300">
+              <p className="pl-3 text-xs text-slate-500 dark:text-dark-muted">
                 No additional repayments configured.
               </p>
             )}
             {additionalRepayments.map((entry) => {
               return (
-                <div key={entry.id} className="rounded-2xl border border-slate-200 p-3 text-xs dark:border-slate-700">
+                <div key={entry.id} className="rounded-2xl border border-slate-200 p-3 text-xs dark:border-dark-border">
                   <div className="mb-2 flex items-center justify-between font-semibold text-slate-600">
                     <span>Repayment frequency</span>
                     <button
@@ -336,7 +268,7 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
                     </button>
                   </div>
                   <select
-                    className="mb-2 w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none dark:border-slate-600 dark:bg-transparent dark:text-white"
+                    className="mb-2 w-full rounded-2xl border border-slate-200 px-3 py-2 text-sm font-semibold text-slate-800 focus:outline-none dark:border-dark-border dark:bg-transparent dark:text-white"
                     value={entry.frequency}
                     onChange={(e) =>
                       onUpdateAdditional(entry.id, {
@@ -363,7 +295,7 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
                           const next = Number.isFinite(parsed) ? Math.max(1, parsed) : 1;
                           onUpdateAdditional(entry.id, { intervalMonths: next });
                         }}
-                        className="mt-1 w-full rounded-2xl border border-slate-200 px-3 py-2 font-semibold text-slate-800 focus:outline-none dark:border-slate-600 dark:bg-transparent dark:text-white"
+                        className="mt-1 w-full rounded-2xl border border-slate-200 px-3 py-2 font-semibold text-slate-800 focus:outline-none dark:border-dark-border dark:bg-transparent dark:text-white"
                       />
                     </label>
                   )}
@@ -378,12 +310,12 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
                           onChange={(e) =>
                             onUpdateAdditional(entry.id, { startMonth: toNumberOrZero(e.target.value) })
                           }
-                          className="mt-1 w-full rounded-2xl border border-slate-200 px-3 py-2 font-semibold text-slate-800 focus:outline-none dark:border-slate-600 dark:bg-transparent dark:text-white"
+                          className="mt-1 w-full rounded-2xl border border-slate-200 px-3 py-2 font-semibold text-slate-800 focus:outline-none dark:border-dark-border dark:bg-transparent dark:text-white"
                         />
                       </label>
                       <label className="text-slate-500">
                         Amount
-                        <div className="mt-1 flex items-center rounded-2xl border border-slate-200 px-3 py-2 font-semibold text-slate-800 focus-within:ring dark:border-slate-600 dark:bg-transparent dark:text-white">
+                        <div className="mt-1 flex items-center rounded-2xl border border-slate-200 px-3 py-2 font-semibold text-slate-800 focus-within:ring dark:border-dark-border dark:bg-transparent dark:text-white">
                           <span className="mr-1 text-slate-400">$</span>
                           <input
                             type="number"
@@ -405,7 +337,7 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
                             onChange={(e) =>
                               onUpdateAdditional(entry.id, { startMonth: toNumberOrZero(e.target.value) })
                             }
-                            className="mt-1 w-full rounded-2xl border border-slate-200 px-3 py-2 font-semibold text-slate-800 focus:outline-none dark:border-slate-600 dark:bg-transparent dark:text-white"
+                            className="mt-1 w-full rounded-2xl border border-slate-200 px-3 py-2 font-semibold text-slate-800 focus:outline-none dark:border-dark-border dark:bg-transparent dark:text-white"
                           />
                         </label>
                         <label className="text-slate-500">
@@ -416,13 +348,13 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
                             onChange={(e) =>
                               onUpdateAdditional(entry.id, { endMonth: toNumberOrZero(e.target.value) })
                             }
-                            className="mt-1 w-full rounded-2xl border border-slate-200 px-3 py-2 font-semibold text-slate-800 focus:outline-none dark:border-slate-600 dark:bg-transparent dark:text-white"
+                            className="mt-1 w-full rounded-2xl border border-slate-200 px-3 py-2 font-semibold text-slate-800 focus:outline-none dark:border-dark-border dark:bg-transparent dark:text-white"
                           />
                         </label>
                       </div>
                       <label className="text-slate-500">
                         Amount
-                        <div className="mt-1 flex items-center rounded-2xl border border-slate-200 px-3 py-2 font-semibold text-slate-800 focus-within:ring dark:border-slate-600 dark:bg-transparent dark:text-white">
+                        <div className="mt-1 flex items-center rounded-2xl border border-slate-200 px-3 py-2 font-semibold text-slate-800 focus-within:ring dark:border-dark-border dark:bg-transparent dark:text-white">
                           <span className="mr-1 text-slate-400">$</span>
                           <input
                             type="number"
@@ -435,7 +367,7 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
                     </>
                   )}
 
-                  <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-500 dark:border-slate-700 dark:bg-transparent dark:text-slate-300">
+                  <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-500 dark:border-dark-border dark:bg-transparent dark:text-dark-muted">
                     <p>Original completion date: {originalCompletionDateLabel}</p>
                     <p>Updated completion date: {updatedCompletionDateLabel}</p>
                   </div>
@@ -455,7 +387,7 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
           </div>
           <div className="mt-3 space-y-3">
             {rateChanges.length === 0 && (
-              <p className="pl-3 pb-2 text-xs text-slate-500 dark:text-slate-300">
+              <p className="pl-3 pb-2 text-xs text-slate-500 dark:text-dark-muted">
                 No interest rate changes configured.
               </p>
             )}
@@ -463,7 +395,7 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
               const summary = ratePaymentSummaries.find((item) => item.id === entry.id);
               const original = ratePaymentSummaries[0];
               return (
-                <div key={entry.id} className="rounded-2xl border border-slate-200 p-3 text-xs dark:border-slate-700">
+                <div key={entry.id} className="rounded-2xl border border-slate-200 p-3 text-xs dark:border-dark-border">
                   <div className="mb-2 flex items-center justify-between font-semibold text-slate-600">
                     <span>Rate change</span>
                     <button
@@ -481,7 +413,7 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
                       type="number"
                       value={entry.startMonth}
                       onChange={(e) => onUpdateRateChange(entry.id, { startMonth: toNumberOrZero(e.target.value) })}
-                      className="mt-1 w-full rounded-2xl border border-slate-200 px-3 py-2 font-semibold text-slate-800 focus:outline-none dark:border-slate-600 dark:bg-transparent dark:text-white"
+                      className="mt-1 w-full rounded-2xl border border-slate-200 px-3 py-2 font-semibold text-slate-800 focus:outline-none dark:border-dark-border dark:bg-transparent dark:text-white"
                     />
                   </label>
                   <label className="text-slate-500">
@@ -491,11 +423,11 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
                       step="0.05"
                       value={entry.newRate}
                       onChange={(e) => onUpdateRateChange(entry.id, { newRate: toNumberOrZero(e.target.value) })}
-                      className="mt-1 w-full rounded-2xl border border-slate-200 px-3 py-2 font-semibold text-slate-800 focus:outline-none dark:border-slate-600 dark:bg-transparent dark:text-white"
+                      className="mt-1 w-full rounded-2xl border border-slate-200 px-3 py-2 font-semibold text-slate-800 focus:outline-none dark:border-dark-border dark:bg-transparent dark:text-white"
                     />
                   </label>
                 </div>
-                <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-500 dark:border-slate-700 dark:bg-transparent dark:text-slate-300">
+                <div className="mt-3 rounded-2xl border border-slate-200 bg-slate-50 p-3 text-xs text-slate-500 dark:border-dark-border dark:bg-transparent dark:text-dark-muted">
                   {original && (
                     <p>Original repayment: {formatCurrency(original.payment)} /month</p>
                   )}
@@ -505,6 +437,74 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
                 </div>
               </div>
             );})}
+          </div>
+        </CollapsibleContainer>
+      </div>
+
+      <div className="mt-6">
+        <CollapsibleContainer
+          title="Loan Balance (graph)"
+          padded={false}
+          collapsible
+          defaultOpen={false}
+          accent="blue"
+        >
+          <p className="text-xs text-slate-500">
+            Hover over the graph to see the breakdown between principle vs interest for each month of the loan.
+          </p>
+          <BalanceChart schedule={schedule} height={300} />
+        </CollapsibleContainer>
+      </div>
+
+      <div className="mt-6">
+        <CollapsibleContainer
+          title="Detailed Repayment Breakdown"
+          collapsible
+          defaultOpen={false}
+          padded={false}
+          accent="blue"
+        >
+          <ToggleGroup
+            options={breakdownViewOptions}
+            value={breakdownView}
+            onChange={onBreakdownViewChange}
+          />
+          <div className="max-h-[360px] overflow-y-auto">
+            <table className="mt-3 w-full table-fixed text-left text-xs text-slate-600 dark:text-dark-text">
+              <thead>
+                <tr className="text-slate-400">
+                  <th className="pb-2 pr-3">{breakdownView === 'monthly' ? 'Month' : 'Year'}</th>
+                  <th className="pb-2 pl-4">Principle</th>
+                  <th className="pb-2 pl-4">Interest</th>
+                  <th className="pb-2 text-right">Loan remaining</th>
+                </tr>
+              </thead>
+              <tbody>
+                {breakdownRows.map((row, index) => (
+                  <tr key={`${row.label}-${index}`} className="border-t border-slate-100 dark:border-dark-borderStrong">
+                    <td className="py-2 pr-3 font-semibold">
+                      {breakdownView === 'monthly' ? (
+                        <>
+                          <div>{row.monthLabel}</div>
+                          <div className="text-[11px] text-slate-400">{row.yearLabel}</div>
+                        </>
+                      ) : (
+                        <div>{row.label}</div>
+                      )}
+                    </td>
+                    <td className="py-2 pl-4">
+                      {formatCurrency(row.principal)}
+                      <div className="text-[10px] text-slate-400">{row.principalPct?.toFixed(0)}%</div>
+                    </td>
+                    <td className="py-2 pl-4">
+                      {formatCurrency(row.interest)}
+                      <div className="text-[10px] text-slate-400">{row.interestPct?.toFixed(0)}%</div>
+                    </td>
+                    <td className="py-2 text-right">{formatCurrency(row.balance)}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
           </div>
         </CollapsibleContainer>
       </div>

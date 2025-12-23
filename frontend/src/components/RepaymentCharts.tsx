@@ -22,8 +22,8 @@ import { PeriodRow } from 'calc-engine';
  * 3. CumulativeInterestChart - Line chart showing cumulative interest paid
  *
  * Uses brand color palette from DESIGN_SYSTEM.md:
- * - brand-500 (#4A6FA5) - Principle (primary blue)
- * - Orange (#fb923c) - Interest
+ * - Soft sky (#9CC4FF) - Principle (primary blue)
+ * - Peach (#FFC69A) - Interest
  * - Slate-600 (#475569) - Baseline/secondary
  *
  * @see DESIGN_SYSTEM.md - Color Palette section
@@ -56,13 +56,13 @@ interface BalanceDatum {
 
 // Theme colors from design system
 const COLORS = {
-  principal: '#4A6FA5',      // brand-500
-  principalFill: 'rgba(74, 111, 165, 0.25)', // brand-500 with 25% opacity
-  interest: '#fb923c',        // orange-400
-  interestFill: 'rgba(249, 115, 22, 0.24)', // orange-600 with 24% opacity
-  baseline: '#64748b',        // slate-500
-  text: '#475569',           // slate-600 (for light mode)
-  textDark: '#cbd5e1',       // slate-300 (for dark mode - future)
+  principal: '#9cc4ff',
+  principalFill: 'rgba(156, 196, 255, 0.35)',
+  interest: '#ffc69a',
+  interestFill: 'rgba(255, 198, 154, 0.32)',
+  baseline: '#c7d2fe',
+  text: '#475569',
+  textDark: '#cbd5e1'
 } as const;
 
 /**
@@ -129,13 +129,13 @@ const BalanceTooltip: React.FC<TooltipProps<number, string>> = ({
   const principalPct = repayment > 0 ? (principal / repayment) * 100 : 0;
 
   return (
-    <div className="rounded-2xl border border-slate-200 bg-brand-25/95 p-3 shadow-lg backdrop-blur dark:border-slate-800 dark:bg-brand-800/95">
+    <div className="rounded-2xl border border-slate-200 bg-brand-25/95 p-3 shadow-lg backdrop-blur dark:border-dark-border dark:bg-dark-surfaceAlt/95">
       <div className="mb-2 text-sm font-semibold text-slate-900 dark:text-white">
         {heading}
       </div>
 
       <div className="mb-2">
-        <div className="text-xs text-slate-500 dark:text-slate-400">
+        <div className="text-xs text-slate-500 dark:text-dark-muted">
           Repayment amount
         </div>
         <div className="font-semibold text-slate-900 dark:text-white">

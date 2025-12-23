@@ -12,9 +12,12 @@ type CollapsibleContainerProps = {
 };
 
 const accentStyles: Record<Accent, string> = {
-  slate: 'border-slate-200 text-slate-500 bg-slate-50 hover:border-slate-300 hover:text-slate-600 dark:border-slate-600 dark:text-slate-400',
-  blue: 'border-brand-300 text-brand-500 bg-brand-50 hover:border-brand-400 hover:text-brand-600',
-  purple: 'border-purple-200 text-purple-500 bg-purple-50 hover:border-purple-300 hover:text-purple-600',
+  slate:
+    'bg-white text-brand-800 border-white shadow-sm hover:bg-white/90 dark:bg-white/10 dark:border-white/40 dark:text-white',
+  blue:
+    'bg-brand-500/15 text-brand-700 border-brand-200 shadow-sm hover:bg-brand-500/25 dark:bg-brand-400/15 dark:border-brand-400/40 dark:text-brand-100',
+  purple:
+    'bg-purple-200/40 text-purple-700 border-purple-200 shadow-sm hover:bg-purple-200/60 dark:bg-purple-300/10 dark:border-purple-300/40 dark:text-purple-100',
 };
 
 export const CollapsibleContainer: React.FC<CollapsibleContainerProps> = ({
@@ -31,7 +34,7 @@ export const CollapsibleContainer: React.FC<CollapsibleContainerProps> = ({
     <section
       className={`space-y-3 rounded-3xl border border-slate-200 bg-white ${
         padded ? 'px-4 py-4' : 'px-4 py-3'
-      } shadow-sm dark:border-slate-700 dark:bg-brand-800/40`}
+      } shadow-sm dark:border-dark-border dark:bg-dark-surface`}
     >
       <div className="flex items-center justify-between">
         <h3 className="text-sm font-semibold text-slate-800 dark:text-white">{title}</h3>
@@ -39,7 +42,7 @@ export const CollapsibleContainer: React.FC<CollapsibleContainerProps> = ({
           <button
             type="button"
             onClick={() => setOpen((prev) => !prev)}
-            className={`flex h-7 w-7 items-center justify-center rounded-full border text-base font-semibold transition ${accentStyles[accent]}`}
+            className={`flex h-8 w-8 items-center justify-center rounded-full text-base font-semibold transition ${accentStyles[accent]}`}
             aria-label={open ? 'Collapse section' : 'Expand section'}
           >
             {open ? '−' : '+'}

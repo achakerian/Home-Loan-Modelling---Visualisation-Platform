@@ -16,7 +16,7 @@ const navItems = [
 
 export const BottomNav: React.FC = () => {
   return (
-    <nav className="safe-area-bottom fixed bottom-0 left-0 right-0 z-50 border-t-2 border-slate-300 bg-white/95 backdrop-blur dark:border-slate-800 dark:bg-brand-800/95">
+    <nav className="safe-area-bottom fixed bottom-0 left-0 right-0 z-50 border-t-2 border-slate-300 bg-white/95 backdrop-blur dark:border-dark-border dark:bg-dark-surfaceAlt/95">
       <div className="mx-auto max-w-md">
         <div className="flex h-16 items-center justify-around">
           {navItems.map((item) => (
@@ -27,7 +27,7 @@ export const BottomNav: React.FC = () => {
                 `flex h-full flex-1 flex-col items-center justify-center transition-colors ${
                   isActive
                     ? 'text-brand-500'
-                    : 'text-slate-600 hover:text-slate-900 dark:text-slate-300 dark:hover:text-white'
+                    : 'text-slate-600 hover:text-slate-900 dark:text-dark-muted dark:hover:text-dark-text'
                 }`
               }
             >

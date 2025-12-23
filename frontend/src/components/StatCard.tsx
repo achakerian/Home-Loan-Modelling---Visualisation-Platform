@@ -13,7 +13,7 @@ interface StatCardProps {
 }
 
 const variantStyles = {
-  default: 'border-slate-200 dark:border-slate-700',
+  default: 'border-slate-200 dark:border-dark-border',
   primary: 'border-brand-200 dark:border-brand-700',
   success: 'border-green-200 dark:border-green-700',
   warning: 'border-amber-200 dark:border-amber-700',
@@ -44,14 +44,14 @@ export const StatCard: React.FC<StatCardProps> = ({
     <div
       className={`rounded-2xl border p-3 text-center ${variantStyles[variant]} ${className}`}
     >
-      <p className="text-[11px] uppercase tracking-wide text-slate-400 dark:text-slate-500">
+      <p className="text-[11px] uppercase tracking-wide text-slate-400 dark:text-dark-text0">
         {label}
       </p>
       <p className={`mt-1 font-bold ${sizeStyles[size]} ${variantTextStyles[variant]}`}>
         {value}
       </p>
       {subtitle && (
-        <p className="mt-1 text-xs text-slate-500 dark:text-slate-400">{subtitle}</p>
+        <p className="mt-1 text-xs text-slate-500 dark:text-dark-muted">{subtitle}</p>
       )}
     </div>
   );
