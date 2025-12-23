@@ -39,7 +39,7 @@ export const PercentInput: React.FC<PercentInputProps> = ({
   return (
     <label className={`text-slate-500 ${className}`}>
       {label}
-      <div className="mt-1 flex items-center rounded-2xl border border-slate-300 px-3 py-2 text-base font-semibold text-slate-800 focus-within:ring dark:border-slate-600 dark:bg-transparent dark:text-white">
+      <div className="mt-1 flex items-center rounded-2xl border border-slate-300 px-3 py-2 text-base font-semibold text-slate-800 focus-within:ring dark:border-dark-border dark:bg-transparent dark:text-white">
         <input
           id={id}
           type="number"

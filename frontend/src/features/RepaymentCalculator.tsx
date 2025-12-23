@@ -154,7 +154,7 @@ export const RepaymentCalculator: React.FC<RepaymentCalculatorProps> = ({
                 checked={repaymentType === 'principalAndInterest'}
                 onChange={() => setRepaymentType('principalAndInterest')}
               />
-              Principal &amp; Interest
+              Principle &amp; Interest
             </label>
             <br />
             <label>
@@ -559,14 +559,14 @@ const RepaymentTable: React.FC<TableProps> = ({ schedule }) => {
                 <th style={thStyle}>Date</th>
                 <th style={thStyle}>Repayment</th>
                 <th style={thStyle}>Interest</th>
-                <th style={thStyle}>Principal</th>
+                <th style={thStyle}>Principle</th>
                 <th style={thStyle}>Balance</th>
               </tr>
             ) : (
               <tr>
                 <th style={thStyle}>Year</th>
                 <th style={thStyle}>Interest paid</th>
-                <th style={thStyle}>Principal paid</th>
+                <th style={thStyle}>Principle paid</th>
               </tr>
             )}
           </thead>

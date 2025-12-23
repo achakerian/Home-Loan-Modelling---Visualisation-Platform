@@ -1,28 +1,7 @@
 import React from 'react';
-import { InfoIcon, MoonIcon, SunIcon } from './icons';
-
-const getInitialDarkMode = () => {
-  if (typeof window === 'undefined') {
-    return false;
-  }
-
-  const stored = window.localStorage.getItem('calc-theme');
-  if (stored === 'dark') {
-    return true;
-  }
-  if (stored === 'light') {
-    return false;
-  }
-
-  if (typeof window.matchMedia !== 'function') {
-    return false;
-  }
-
-  return window.matchMedia('(prefers-color-scheme: dark)').matches;
-};
+import { InfoIcon, SunIcon } from './icons';
 
 export const TitleHeading: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = React.useState<boolean>(getInitialDarkMode);
   const [isCondensed, setIsCondensed] = React.useState(false);
   const DEFAULT_DISCLAIMER = "There's always a disclaimer";
   const [disclaimer, setDisclaimer] = React.useState(DEFAULT_DISCLAIMER);
@@ -87,19 +66,6 @@ export const TitleHeading: React.FC = () => {
   }, [updateHeaderOffset]);
 
   React.useEffect(() => {
-    if (typeof document === 'undefined') {
-      return;
-    }
-
-    const root = document.documentElement;
-    root.classList.toggle('dark', isDarkMode);
-
-    if (typeof window !== 'undefined') {
-      window.localStorage.setItem('calc-theme', isDarkMode ? 'dark' : 'light');
-    }
-  }, [isDarkMode]);
-
-  React.useEffect(() => {
     if (typeof window === 'undefined') {
       return;
     }
@@ -117,7 +83,7 @@ export const TitleHeading: React.FC = () => {
   return (
     <header
       ref={headerRef}
-      className={`sticky top-0 z-40 mb-2 overflow-hidden bg-gradient-to-br from-brand-950 via-brand-800 to-brand-950 text-white shadow-xl transition-all ${
+      className={`sticky top-0 z-40 mb-2 overflow-hidden bg-gradient-to-br from-brand-950 via-brand-800 to-brand-950 text-white shadow-xl transition-all dark:from-[#0b1220] dark:via-[#121a2d] dark:to-[#0b1220] ${
         isCondensed ? 'py-3' : 'py-6'
       }`}
     >
@@ -146,28 +112,13 @@ export const TitleHeading: React.FC = () => {
           )}
         </div>
 
-        <button
-          type="button"
-          aria-pressed={isDarkMode}
-          aria-label={isDarkMode ? 'Switch to light mode' : 'Switch to dark mode'}
-          onClick={() => setIsDarkMode((prev) => !prev)}
-          className={`relative flex w-12 flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur transition-all hover:bg-white/20 ${
-            isCondensed ? 'h-12' : 'h-14'
+        <div
+          className={`relative flex flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur transition-all ${
+            isCondensed ? 'h-7 w-7' : 'h-14 w-14'
           }`}
         >
-          <div className={!isCondensed ? '-mt-1' : ''}>
-            {isDarkMode ? (
-              <MoonIcon className="h-6 w-6 text-blue-100" />
-            ) : (
-              <SunIcon className="h-6 w-6 text-amber-300" />
-            )}
-          </div>
-          {!isCondensed && (
-            <span className="pointer-events-none absolute bottom-1 text-[9px] font-semibold tracking-wide text-white/80">
-              {isDarkMode ? 'DARK' : 'LIGHT'}
-            </span>
-          )}
-        </button>
+          <SunIcon className={isCondensed ? 'h-3 w-3 text-amber-300' : 'h-6 w-6 text-amber-300'} />
+        </div>
         </div>
       </div>
     </header>

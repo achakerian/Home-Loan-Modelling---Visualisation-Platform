@@ -64,16 +64,16 @@ export const RepaymentOverTimeChart: React.FC<ChartProps> = ({ schedule, height 
           type="monotone"
           dataKey="principal"
           stackId="1"
-          stroke="#60a5fa"
-          fill="rgba(37, 99, 235, 0.25)"
+          stroke="#9cc4ff"
+          fill="rgba(156, 196, 255, 0.35)"
           name="Principle"
         />
         <Area
           type="monotone"
           dataKey="interest"
           stackId="1"
-          stroke="#fb923c"
-          fill="rgba(249, 115, 22, 0.24)"
+          stroke="#ffc69a"
+          fill="rgba(255, 198, 154, 0.32)"
           name="Interest"
         />
       </AreaChart>
@@ -171,16 +171,16 @@ export const BalanceChart: React.FC<ChartProps> = ({ schedule, height, overlaySc
           type="monotone"
           dataKey="principalArea"
           name="Principle remaining"
-          stroke="#60a5fa"
-          fill="rgba(37, 99, 235, 0.25)"
+          stroke="#9cc4ff"
+          fill="rgba(156, 196, 255, 0.35)"
           stackId="1"
         />
         <Area
           type="monotone"
           dataKey="interestArea"
           name="Interest share of repayments"
-          stroke="#fb923c"
-          fill="rgba(249, 115, 22, 0.24)"
+          stroke="#ffc69a"
+          fill="rgba(255, 198, 154, 0.32)"
           stackId="1"
         />
         {data.some((d) => d.baselinePrincipalRemaining !== undefined) && (
@@ -188,7 +188,7 @@ export const BalanceChart: React.FC<ChartProps> = ({ schedule, height, overlaySc
             type="monotone"
             dataKey="baselinePrincipalRemaining"
             name="Principle without extras"
-            stroke="#4b5563"
+            stroke="#c7d2fe"
             dot={false}
             strokeDasharray="4 4"
           />
@@ -268,15 +268,15 @@ const BalanceTooltip: React.FC<TooltipProps<number, string>> = ({
         </div>
       </div>
 
-      <div style={{ marginBottom: 2, color: '#fb923c' }}>
+      <div style={{ marginBottom: 2, color: '#ffc69a' }}>
         Interest:{' '}
         <span style={{ fontWeight: 600 }}>
           {formatCurrency(interest)}
         </span>{' '}
         <span style={{ color: '#9ca3af' }}>({Math.round(interestPct)}%)</span>
       </div>
-      <div style={{ color: '#60a5fa' }}>
-        Principal reduction:{' '}
+      <div style={{ color: '#9cc4ff' }}>
+        Principle reduction:{' '}
         <span style={{ fontWeight: 600 }}>
           {formatCurrency(principal)}
         </span>{' '}
