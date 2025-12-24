@@ -35,7 +35,7 @@ const BorrowingPowerArticle: React.FC = () => (
 
 export const BorrowingPowerSection: React.FC = () => (
   <div className="space-y-5">
-    <CollapsibleContainer title="Simple Calculator" collapsible defaultOpen>
+    <CollapsibleContainer title="Simple Calculator" collapsible defaultOpen={false}>
       <BorrowingPowerCard />
     </CollapsibleContainer>
     <CollapsibleContainer title="How we calculate it" collapsible defaultOpen={false}>

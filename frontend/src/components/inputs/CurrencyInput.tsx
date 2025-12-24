@@ -1,5 +1,5 @@
 import React from 'react';
-import { formatCurrency, toNumberOrZero, stripLeadingZeros } from '../../lib/formatters';
+import { formatNumber, toNumberOrZero, stripLeadingZeros } from '../../lib/formatters';
 
 interface CurrencyInputProps {
   label: string;
@@ -32,14 +32,14 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
   };
 
   return (
-    <label className={`text-slate-500 ${className}`}>
+    <label className={`text-xs font-semibold text-slate-500 dark:text-dark-muted ${className}`}>
       {label}
       <div className="mt-1 flex items-center rounded-2xl border border-slate-300 px-3 py-2 text-base font-semibold text-slate-800 focus-within:ring dark:border-dark-border dark:bg-transparent dark:text-white">
         <span className="mr-1 text-slate-400">$</span>
         <input
           id={id}
           type="text"
-          value={formatCurrency(value)}
+          value={formatNumber(value)}
           onChange={handleChange}
           className="w-full bg-transparent focus:outline-none"
         />

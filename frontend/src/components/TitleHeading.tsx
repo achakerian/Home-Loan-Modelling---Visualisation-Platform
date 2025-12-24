@@ -1,7 +1,8 @@
 import React from 'react';
-import { InfoIcon, SunIcon } from './icons';
+import { InfoIcon, MoonIcon, SunIcon } from './icons';
 
 export const TitleHeading: React.FC = () => {
+  const [isDarkMode, setIsDarkMode] = React.useState(false);
   const [isCondensed, setIsCondensed] = React.useState(false);
   const DEFAULT_DISCLAIMER = "There's always a disclaimer";
   const [disclaimer, setDisclaimer] = React.useState(DEFAULT_DISCLAIMER);
@@ -91,18 +92,28 @@ export const TitleHeading: React.FC = () => {
       <div className="pointer-events-none absolute -right-8 top-0 h-56 w-56 rounded-full border border-white/5"></div>
 
       <div className="mx-auto max-w-md px-6">
-        <div
-          className={`relative flex gap-4 ${isCondensed ? 'items-center' : 'items-start'}`}
-        >
-        <div className="flex-1">
-          <h1 className="whitespace-nowrap text-[clamp(1.25rem,3vw,1.85rem)] font-semibold leading-tight text-white">
-            Australian Financial Calculator
-          </h1>
+        <div className="relative flex flex-col gap-1">
+          <div className="flex items-center gap-3">
+            <h1 className="whitespace-nowrap text-[clamp(1.25rem,3vw,1.85rem)] font-semibold leading-tight text-white">
+              Australian Financial Calculator
+            </h1>
+            <button
+              type="button"
+              onClick={() => setIsDarkMode((prev) => !prev)}
+              className="relative flex flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur transition-all hover:bg-white/20 h-[38px] w-[38px]"
+            >
+              {isDarkMode ? (
+                <MoonIcon className="h-[18px] w-[18px] text-blue-100" />
+              ) : (
+                <SunIcon className="h-[18px] w-[18px] text-amber-300" />
+              )}
+            </button>
+          </div>
           {!isCondensed && (
             <button
               type="button"
               onClick={handleDisclaimerClick}
-              className="mt-3 flex items-center gap-2 text-left text-sm text-white/80 transition hover:text-white"
+              className="flex items-center gap-2 text-left text-sm text-white/80 transition hover:text-white"
             >
               <span>{disclaimer}</span>
               <span className="flex h-6 w-6 items-center justify-center rounded-full border border-white/25 bg-white/10">
@@ -110,15 +121,6 @@ export const TitleHeading: React.FC = () => {
               </span>
             </button>
           )}
-        </div>
-
-        <div
-          className={`relative flex flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur transition-all ${
-            isCondensed ? 'h-7 w-7' : 'h-14 w-14'
-          }`}
-        >
-          <SunIcon className={isCondensed ? 'h-3 w-3 text-amber-300' : 'h-6 w-6 text-amber-300'} />
-        </div>
         </div>
       </div>
     </header>

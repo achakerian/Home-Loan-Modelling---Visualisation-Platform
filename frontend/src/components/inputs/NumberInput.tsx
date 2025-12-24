@@ -32,7 +32,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
   };
 
   return (
-    <label className={`text-slate-500 ${className}`}>
+    <label className={`text-xs font-semibold text-slate-500 dark:text-dark-muted ${className}`}>
       {label}
       <input
         id={id}

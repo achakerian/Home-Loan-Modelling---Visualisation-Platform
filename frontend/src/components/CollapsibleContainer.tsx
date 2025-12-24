@@ -13,11 +13,11 @@ type CollapsibleContainerProps = {
 
 const accentStyles: Record<Accent, string> = {
   slate:
-    'bg-white text-brand-800 border-white shadow-sm hover:bg-white/90 dark:bg-white/10 dark:border-white/40 dark:text-white',
+    'bg-slate-100 text-slate-600 hover:bg-slate-200 dark:bg-slate-700/50 dark:text-slate-300 dark:hover:bg-slate-700',
   blue:
-    'bg-brand-500/15 text-brand-700 border-brand-200 shadow-sm hover:bg-brand-500/25 dark:bg-brand-400/15 dark:border-brand-400/40 dark:text-brand-100',
+    'bg-brand-100 text-brand-700 hover:bg-brand-200 dark:bg-brand-800/50 dark:text-brand-300 dark:hover:bg-brand-800',
   purple:
-    'bg-purple-200/40 text-purple-700 border-purple-200 shadow-sm hover:bg-purple-200/60 dark:bg-purple-300/10 dark:border-purple-300/40 dark:text-purple-100',
+    'bg-purple-100 text-purple-700 hover:bg-purple-200 dark:bg-purple-800/50 dark:text-purple-300 dark:hover:bg-purple-800',
 };
 
 export const CollapsibleContainer: React.FC<CollapsibleContainerProps> = ({

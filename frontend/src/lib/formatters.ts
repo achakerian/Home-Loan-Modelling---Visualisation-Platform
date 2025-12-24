@@ -14,6 +14,17 @@ export const formatCurrency = (value: number): string => {
 };
 
 /**
+ * Formats a number with thousand separators (no currency symbol)
+ * @param value - The number to format
+ * @returns Formatted number string (e.g., "1,000")
+ */
+export const formatNumber = (value: number): string => {
+  return new Intl.NumberFormat('en-AU', {
+    maximumFractionDigits: 0,
+  }).format(value);
+};
+
+/**
  * Removes leading zeros from a string
  * @param value - The string to process
  * @returns String without leading zeros

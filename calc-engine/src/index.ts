@@ -578,3 +578,12 @@ export function estimateBorrowingCapacity(
     capacityByRate
   };
 }
+
+export type {
+  PayCalculateRequest,
+  PayCalculateResponse,
+  TaxYearId,
+  PayFrequency,
+  Residency
+} from './pay/types';
+export { calculatePaySummary } from './pay/calculatePaySummary';

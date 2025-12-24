@@ -5,7 +5,7 @@ import { TitleHeading } from '../components/TitleHeading';
 
 export const MainLayout: React.FC = () => {
   return (
-    <div className="min-h-screen bg-slate-100 pb-20 text-slate-900 transition-colors dark:bg-dark-base dark:text-dark-text">
+    <div className="min-h-screen bg-slate-100 pb-20 text-slate-900 transition-colors">
       <TitleHeading />
       <main>
         <Outlet />

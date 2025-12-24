@@ -62,7 +62,7 @@ export const FeatureAccordion: React.FC<FeatureAccordionProps> = ({
                     {item.title}
                   </h2>
                 </div>
-                <span className="flex h-8 w-8 items-center justify-center rounded-full border border-brand-500 bg-brand-50 text-base font-semibold text-brand-600">
+                <span className="flex h-8 w-8 items-center justify-center rounded-full bg-slate-100 text-base font-semibold text-slate-600 hover:bg-slate-200 dark:bg-slate-700/50 dark:text-slate-300">
                   {isOpen ? '−' : '+'}
                 </span>
               </button>
