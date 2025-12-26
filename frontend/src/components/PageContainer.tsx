@@ -26,7 +26,7 @@ export const PageContainer: React.FC<PageContainerProps> = ({
     <div className="relative">
       {borderColor && (
         <div
-          className={`fixed left-0 top-0 h-full w-1 ${borderColor} opacity-40`}
+          className={`fixed left-4 top-0 h-full w-1 ${borderColor} opacity-40`}
           style={{ zIndex: 1 }}
         />
       )}
