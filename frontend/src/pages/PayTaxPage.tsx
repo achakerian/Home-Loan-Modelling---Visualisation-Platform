@@ -12,14 +12,14 @@ const items: FeatureAccordionItem[] = [
   },
   {
     badge: 'Prep',
-    title: 'Tax checklist & deductions',
+    title: '🚧 Tax checklist & deductions (in development)',
     content: <TaxChecklistSection />,
   },
 ];
 
 export const PayTaxPage: React.FC = () => {
   return (
-    <PageContainer>
+    <PageContainer borderColor="bg-violet-500">
       <FeatureAccordion items={items} initialOpen={null} />
     </PageContainer>
   );

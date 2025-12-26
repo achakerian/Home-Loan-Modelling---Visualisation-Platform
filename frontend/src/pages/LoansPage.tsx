@@ -19,7 +19,7 @@ const items: FeatureAccordionItem[] = [
 
 export const LoansPage: React.FC = () => {
   return (
-    <PageContainer>
+    <PageContainer borderColor="bg-orange-500">
       <FeatureAccordion items={items} initialOpen={null} />
     </PageContainer>
   );

@@ -6,10 +6,10 @@ export const LoginPage: React.FC = () => {
     <PageContainer>
       <div className="rounded-3xl border-2 border-dashed border-slate-400 bg-white/80 p-8 text-center text-slate-700 shadow-lg backdrop-blur dark:border-dark-border dark:bg-dark-surfaceAlt/80 dark:text-dark-text">
         <p className="text-sm font-semibold text-slate-500 dark:text-dark-muted">
-          Under construction
+          🚧 Under construction
         </p>
         <h1 className="mt-2 text-2xl font-semibold text-slate-900 dark:text-white">
-          Sign-in hub coming soon
+          🚧 Sign-in hub coming soon
         </h1>
         <p className="mt-4 text-sm">
           We’re exploring best-practice cyber security patterns, progressive authentication, and implementation partners to keep your data safe.
