@@ -8,10 +8,10 @@ import {
 } from './icons';
 
 const navItems = [
-  { to: '/loans', label: 'Loans', icon: HomeIcon, color: 'bg-orange-500/20' },
-  { to: '/pay-tax', label: 'Pay & Tax', icon: CalculatorIcon, color: 'bg-violet-500/20' },
-  { to: '/super', label: 'Super', icon: PiggyBankIcon, color: 'bg-green-500/20' },
-  { to: '/information', label: 'Information', icon: InfoIcon, color: 'bg-blue-500/20' },
+  { to: '/loans', label: 'Loans', icon: HomeIcon, color: 'text-orange-500' },
+  { to: '/pay-tax', label: 'Pay & Tax', icon: CalculatorIcon, color: 'text-violet-500' },
+  { to: '/super', label: 'Super', icon: PiggyBankIcon, color: 'text-green-500' },
+  { to: '/information', label: 'Information', icon: InfoIcon, color: 'text-blue-500' },
 ];
 
 export const BottomNav: React.FC = () => {
@@ -26,7 +26,7 @@ export const BottomNav: React.FC = () => {
               className={({ isActive }) =>
                 `flex h-full flex-1 flex-col items-center justify-center transition-colors ${
                   isActive
-                    ? `text-brand-500 ${item.color}`
+                    ? item.color
                     : 'text-slate-600 hover:text-slate-900 dark:text-dark-muted dark:hover:text-dark-text'
                 }`
               }
