@@ -37,6 +37,7 @@ export const NumberInput: React.FC<NumberInputProps> = ({
       <input
         id={id}
         type="number"
+        inputMode="decimal"
         value={value}
         onChange={handleChange}
         min={min}

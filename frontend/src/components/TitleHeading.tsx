@@ -1,8 +1,9 @@
 import React from 'react';
 import { InfoIcon, MoonIcon, SunIcon } from './icons';
+import { useDarkMode } from '../contexts/DarkModeContext';
 
 export const TitleHeading: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = React.useState(false);
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
   const [isCondensed, setIsCondensed] = React.useState(false);
   const DEFAULT_DISCLAIMER = "There's always a disclaimer";
   const [disclaimer, setDisclaimer] = React.useState(DEFAULT_DISCLAIMER);
@@ -99,7 +100,7 @@ export const TitleHeading: React.FC = () => {
             </h1>
             <button
               type="button"
-              onClick={() => setIsDarkMode((prev) => !prev)}
+              onClick={toggleDarkMode}
               className="relative flex flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur transition-all hover:bg-white/20 h-[38px] w-[38px]"
             >
               {isDarkMode ? (

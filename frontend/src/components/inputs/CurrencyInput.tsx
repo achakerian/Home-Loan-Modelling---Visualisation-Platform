@@ -39,6 +39,7 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
         <input
           id={id}
           type="text"
+          inputMode="decimal"
           value={formatNumber(value)}
           onChange={handleChange}
           className="w-full bg-transparent focus:outline-none"

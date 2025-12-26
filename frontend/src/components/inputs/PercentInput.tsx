@@ -43,6 +43,7 @@ export const PercentInput: React.FC<PercentInputProps> = ({
         <input
           id={id}
           type="number"
+          inputMode="decimal"
           value={displayValue.toFixed(asPercentage ? 2 : 0)}
           onChange={handleChange}
           step={step}
