@@ -145,25 +145,25 @@ export const BalanceChart: React.FC<ChartProps> = ({ schedule, height, overlaySc
           domain={[0, maxMonth]}
           tickFormatter={(v) => `${Math.round(v / 12)}`}
           ticks={ticks}
-          tick={{ fill: 'var(--text-main)', fontSize: 10 }}
+          tick={{ fill: 'var(--text-main)', fontSize: 12 }}
           label={{
             value: 'Time (years)',
             position: 'bottom',
             offset: 0,
-            style: { fill: 'var(--text-main)', fontSize: 10 }
+            style: { fill: 'var(--text-main)', fontSize: 12 }
           }}
         />
         <YAxis
           tickFormatter={(v) => formatThousands(v)}
           domain={[0, maxPrincipal]}
-          tick={{ fill: 'var(--text-main)', angle: -45, textAnchor: 'end', fontSize: 10 }}
+          tick={{ fill: 'var(--text-main)', angle: -45, textAnchor: 'end', fontSize: 12 }}
           width={50}
           label={{
             value: 'Balance ($)',
             angle: -90,
             position: 'left',
             offset: -10,
-            style: { fill: 'var(--text-main)', fontSize: 10 }
+            style: { fill: 'var(--text-main)', fontSize: 12 }
           }}
         />
         <Tooltip content={<BalanceTooltip />} />
