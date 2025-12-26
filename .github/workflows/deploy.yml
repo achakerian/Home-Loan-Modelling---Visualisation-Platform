@@ -32,8 +32,6 @@ jobs:
 
       - name: Build frontend
         run: npx pnpm --filter frontend build
-        env:
-          VITE_BASE: "/${{ github.event.repository.name }}/"
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
