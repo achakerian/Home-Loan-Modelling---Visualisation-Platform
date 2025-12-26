@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
-import type { TaxYearId } from './taxConfig';
-import { TAX_YEAR_CONFIGS, TAX_YEAR_MAP } from './taxConfig';
+import type { TaxYearId } from '../../../calc-engine/src';
+import { TAX_YEAR_CONFIGS, TAX_YEAR_MAP } from '../../../calc-engine/src';
+import { InfoTooltipWithLink } from '../components/InfoTooltipWithLink';
 
 const DEFAULT_GROSS = 90000;
 
@@ -54,9 +55,15 @@ export const SuperContributions: React.FC = () => {
             gap: '0.3rem'
           }}
         >
-          <h2 className="page-heading" style={{ marginBottom: 0 }}>
-            Concessional Super Contributions
-          </h2>
+          <div style={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+            <h2 className="page-heading" style={{ marginBottom: 0 }}>
+              Concessional Super Contributions
+            </h2>
+            <InfoTooltipWithLink
+              content="Tax-deductible superannuation contributions."
+              targetSection="salary-sacrifice"
+            />
+          </div>
           <p
             style={{
               margin: 0,

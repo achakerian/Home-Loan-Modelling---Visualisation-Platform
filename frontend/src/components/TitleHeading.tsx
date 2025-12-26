@@ -1,8 +1,11 @@
 import React from 'react';
-import { InfoIcon, MoonIcon, SunIcon } from './icons';
+import { useNavigate } from 'react-router-dom';
+import { InfoIcon, MoonIcon, SunIcon, UserIcon } from './icons';
+import { useDarkMode } from '../contexts/DarkModeContext';
 
 export const TitleHeading: React.FC = () => {
-  const [isDarkMode, setIsDarkMode] = React.useState(false);
+  const { isDarkMode, toggleDarkMode } = useDarkMode();
+  const navigate = useNavigate();
   const [isCondensed, setIsCondensed] = React.useState(false);
   const DEFAULT_DISCLAIMER = "There's always a disclaimer";
   const [disclaimer, setDisclaimer] = React.useState(DEFAULT_DISCLAIMER);
@@ -97,17 +100,28 @@ export const TitleHeading: React.FC = () => {
             <h1 className="whitespace-nowrap text-[clamp(1.25rem,3vw,1.85rem)] font-semibold leading-tight text-white">
               Australian Financial Calculator
             </h1>
-            <button
-              type="button"
-              onClick={() => setIsDarkMode((prev) => !prev)}
-              className="relative flex flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur transition-all hover:bg-white/20 h-[38px] w-[38px]"
-            >
-              {isDarkMode ? (
-                <MoonIcon className="h-[18px] w-[18px] text-blue-100" />
-              ) : (
-                <SunIcon className="h-[18px] w-[18px] text-amber-300" />
-              )}
-            </button>
+            <div className="flex gap-2">
+              <button
+                type="button"
+                onClick={toggleDarkMode}
+                className="relative flex flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur transition-all hover:bg-white/20 h-[38px] w-[38px]"
+                aria-label="Toggle dark mode"
+              >
+                {isDarkMode ? (
+                  <MoonIcon className="h-[18px] w-[18px] text-blue-100" />
+                ) : (
+                  <SunIcon className="h-[18px] w-[18px] text-amber-300" />
+                )}
+              </button>
+              <button
+                type="button"
+                onClick={() => navigate('/login')}
+                className="relative flex flex-shrink-0 items-center justify-center rounded-full border border-white/20 bg-white/10 text-white backdrop-blur transition-all hover:bg-white/20 h-[38px] w-[38px]"
+                aria-label="Login"
+              >
+                <UserIcon className="h-[18px] w-[18px] text-white" />
+              </button>
+            </div>
           </div>
           {!isCondensed && (
             <button

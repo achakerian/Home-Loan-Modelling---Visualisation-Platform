@@ -1,12 +1,14 @@
 import React, { useMemo, useState } from 'react';
 import { ToggleGroup, ToggleOption } from '../components/ToggleGroup';
 import { CurrencyInput } from '../components/inputs';
-import { formatCurrency, toNumberOrZero } from '../lib/formatters';
-import { CollapsibleContainer } from '../components/CollapsibleContainer';
-import { IncomeBreakdownChart } from '../graphs/IncomeBreakdownChart';
+import { formatCurrency, formatPercent, toNumberOrZero } from '../lib/formatters';
+import { Tooltip } from '../components/Tooltip';
+import { InfoTooltipWithLink } from '../components/InfoTooltipWithLink';
+import { calculatePaySummary, calculateLITO, calculateMedicareSurcharge } from '../../../calc-engine/src';
 
 type Frequency = 'weekly' | 'fortnightly' | 'monthly' | 'annually' | 'projection';
 type TaxYear = '2024-25' | '2025-26';
+type TaxResidency = 'resident' | 'non-resident' | 'whm';
 
 type IncomeEntry = {
   id: string;
@@ -40,6 +42,7 @@ type Inputs = {
   annualSalary: number;
   frequency: Frequency;
   hasHELP: boolean;
+  taxResidency: TaxResidency;
   hasPrivateHealth: boolean;
 };
 
@@ -95,6 +98,12 @@ const yesNoOptions: ToggleOption<'yes' | 'no'>[] = [
   { label: 'Yes', value: 'yes' },
 ];
 
+const taxResidencyOptions: ToggleOption<TaxResidency>[] = [
+  { label: 'Resident', value: 'resident' },
+  { label: 'Non-resident', value: 'non-resident' },
+  { label: 'WHM', value: 'whm' },
+];
+
 const periodsPerYear: Record<Frequency, number> = {
   weekly: 52,
   fortnightly: 26,
@@ -110,17 +119,6 @@ const frequencyLabels: Record<Frequency, string> = {
   annually: 'year',
   projection: 'FY projection',
 };
-
-const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
-
-const fmtAUD0 = (n: number) =>
-  new Intl.NumberFormat('en-AU', {
-    style: 'currency',
-    currency: 'AUD',
-    maximumFractionDigits: 0,
-  }).format(Number.isFinite(n) ? n : 0);
-
-const percentText = (value: number) => `${(clamp(value, 0, 1) * 100).toFixed(1)}%`;
 
 // Calculate the percentage through the current financial year (July 1 - June 30)
 const getFinancialYearProgress = (): number => {
@@ -144,89 +142,6 @@ const getFinancialYearProgress = (): number => {
 
   return Math.min(1, Math.max(0, daysPassed / totalDays));
 };
-
-const RESIDENT_BRACKETS: Record<
-  TaxYear,
-  Array<{ from: number; to?: number; baseTax: number; marginalRate: number }>
-> = {
-  '2024-25': [
-    { from: 0, to: 18200, baseTax: 0, marginalRate: 0 },
-    { from: 18200, to: 45000, baseTax: 0, marginalRate: 0.16 },
-    { from: 45000, to: 135000, baseTax: 4288, marginalRate: 0.3 },
-    { from: 135000, to: 190000, baseTax: 31288, marginalRate: 0.37 },
-    { from: 190000, baseTax: 51638, marginalRate: 0.45 },
-  ],
-  '2025-26': [
-    { from: 0, to: 18200, baseTax: 0, marginalRate: 0 },
-    { from: 18200, to: 45000, baseTax: 0, marginalRate: 0.16 },
-    { from: 45000, to: 135000, baseTax: 4288, marginalRate: 0.3 },
-    { from: 135000, to: 190000, baseTax: 31288, marginalRate: 0.37 },
-    { from: 190000, baseTax: 51638, marginalRate: 0.45 },
-  ],
-};
-
-const HELP_TABLE_2024_25: Array<{ from: number; to?: number; rate: number }> = [
-  { from: 0, to: 54435, rate: 0 },
-  { from: 54435, to: 62850, rate: 0.01 },
-  { from: 62850, to: 66620, rate: 0.02 },
-  { from: 66620, to: 70618, rate: 0.025 },
-  { from: 70618, to: 74855, rate: 0.03 },
-  { from: 74855, to: 79346, rate: 0.035 },
-  { from: 79346, to: 84107, rate: 0.04 },
-  { from: 84107, to: 89153, rate: 0.045 },
-  { from: 89153, to: 94502, rate: 0.05 },
-  { from: 94502, to: 100173, rate: 0.055 },
-  { from: 100173, to: 106183, rate: 0.06 },
-  { from: 106183, to: 112554, rate: 0.065 },
-  { from: 112554, to: 119307, rate: 0.07 },
-  { from: 119307, to: 126465, rate: 0.075 },
-  { from: 126465, to: 134053, rate: 0.08 },
-  { from: 134053, to: 142097, rate: 0.085 },
-  { from: 142097, to: 150623, rate: 0.09 },
-  { from: 150623, to: 159660, rate: 0.095 },
-  { from: 159660, rate: 0.1 },
-];
-
-// Medicare Levy Surcharge tiers (for those without private health insurance)
-const MLS_TIERS = [
-  { from: 0, to: 97000, rate: 0 },
-  { from: 97000, to: 113000, rate: 0.01 },
-  { from: 113000, to: 151000, rate: 0.0125 },
-  { from: 151000, rate: 0.015 },
-];
-
-function calcResidentIncomeTax(taxYear: TaxYear, taxableAnnual: number): number {
-  const brackets = RESIDENT_BRACKETS[taxYear];
-  const income = Math.max(0, taxableAnnual);
-  const bracket = brackets.find((b) => income >= b.from && (b.to === undefined || income <= b.to));
-  if (!bracket) return 0;
-  return Math.max(0, bracket.baseTax + (income - bracket.from) * bracket.marginalRate);
-}
-
-function calcLITO(taxableIncome: number): number {
-  // Low Income Tax Offset - 2024-25 rates
-  if (taxableIncome <= 37500) return 700;
-  if (taxableIncome <= 45000) return Math.max(0, 700 - 0.05 * (taxableIncome - 37500));
-  if (taxableIncome <= 66667) return Math.max(0, 325 - 0.015 * (taxableIncome - 45000));
-  return 0;
-}
-
-function calcMedicareSurcharge(taxableIncome: number, hasPrivateHealth: boolean): number {
-  if (hasPrivateHealth) return 0;
-  const tier = MLS_TIERS.find((t) => taxableIncome >= t.from && (t.to === undefined || taxableIncome <= t.to));
-  return (tier?.rate ?? 0) * taxableIncome;
-}
-
-function calcHELPRepayment(_taxYear: TaxYear, repaymentIncome: number): number {
-  const income = Math.max(0, repaymentIncome);
-  const row = HELP_TABLE_2024_25.find((r) => income >= r.from && (r.to === undefined || income <= r.to));
-  const rate = row?.rate ?? 0;
-  return income * rate;
-}
-
-function calcMedicareLevy(taxableAnnual: number): number {
-  return Math.max(0, taxableAnnual) * 0.02;
-}
 
 const entryPeriodsPerYear: Record<'weekly' | 'fortnightly' | 'monthly' | 'annually', number> = {
   weekly: 52,
@@ -294,56 +209,72 @@ function compute(
   // Calculate gross annual income (includes all income sources)
   const grossAnnual = Math.max(0, inputs.annualSalary + additionalIncomeTotal);
 
-  // Taxable income is gross minus pre-tax deductions (salary sacrifice and concessional deductions)
-  const taxableAnnual = Math.max(0, grossAnnual - salarySacrificeTotal - concessionalDeductionsTotal);
+  // Pre-tax deductions reduce taxable income
+  const totalPreTaxDeductions = salarySacrificeTotal + concessionalDeductionsTotal;
 
-  // Calculate tax before offsets
-  const incomeTaxBeforeOffsets = calcResidentIncomeTax(inputs.taxYear, taxableAnnual);
+  // Map tax residency for calc-engine
+  const residency =
+    inputs.taxResidency === 'resident' ? 'resident' :
+    inputs.taxResidency === 'non-resident' ? 'nonResident' : 'workingHoliday';
 
-  // Calculate tax offsets
-  const lito = calcLITO(taxableAnnual);
+  // Use calc-engine for base calculation
+  const baseCalc = calculatePaySummary({
+    taxYear: inputs.taxYear,
+    residency,
+    annualSalary: grossAnnual,
+    frequency: 'monthly',
+    hasHELP: inputs.hasHELP,
+    medicareExempt: false,
+    claimTaxFreeThreshold: inputs.taxResidency === 'resident',
+    deductions: totalPreTaxDeductions,
+    includeSuper: false,
+    superRate: 0,
+  });
+
+  // Calculate LITO and Medicare Surcharge using calc-engine functions
+  const lito = calculateLITO(inputs.taxYear, baseCalc.annual.taxable);
+  const medicareSurcharge = calculateMedicareSurcharge(
+    inputs.taxYear,
+    baseCalc.annual.taxable,
+    inputs.hasPrivateHealth
+  );
+
+  // Tax before offsets
+  const incomeTaxBeforeOffsets = baseCalc.annual.incomeTax + lito;
   const taxOffsets = lito;
 
   // Final income tax after offsets
-  const incomeTaxAnnual = Math.max(0, incomeTaxBeforeOffsets - taxOffsets);
+  const incomeTaxAnnual = baseCalc.annual.incomeTax;
 
-  const medicareAnnual = calcMedicareLevy(taxableAnnual);
-  const medicareSurcharge = calcMedicareSurcharge(taxableAnnual, inputs.hasPrivateHealth);
-  const helpAnnual = inputs.hasHELP ? calcHELPRepayment(inputs.taxYear, taxableAnnual) : 0;
-  const totalWithheldAnnual = incomeTaxAnnual + medicareAnnual + medicareSurcharge + helpAnnual;
+  // Total withholdings include surcharge
+  const totalWithheldAnnual = baseCalc.annual.totalWithheld + medicareSurcharge;
 
   // Net = Gross - Pre-tax deductions - Tax withholdings
-  const netAnnual = grossAnnual - salarySacrificeTotal - concessionalDeductionsTotal - totalWithheldAnnual;
+  const netAnnual = grossAnnual - totalPreTaxDeductions - totalWithheldAnnual;
   const effectiveRate = grossAnnual > 0 ? totalWithheldAnnual / grossAnnual : 0;
 
   return {
     grossAnnual,
-    taxableAnnual,
+    taxableAnnual: baseCalc.annual.taxable,
     incomeTaxBeforeOffsets,
     taxOffsets,
     incomeTaxAnnual,
-    medicareAnnual,
+    medicareAnnual: baseCalc.annual.medicareLevy,
     medicareSurcharge,
-    helpAnnual,
+    helpAnnual: baseCalc.annual.help,
     totalWithheldAnnual,
     netAnnual,
     effectiveRate,
   };
 }
 
-const incomeTableColumns: Array<{ key: Frequency; label: string }> = [
-  { key: 'weekly', label: 'Week' },
-  { key: 'fortnightly', label: 'Fortnight' },
-  { key: 'monthly', label: 'Month' },
-  { key: 'annually', label: 'Year' },
-];
-
 export const DetailedPayCalculatorCard: React.FC = () => {
   const [inputs, setInputs] = useState<Inputs>({
-    taxYear: '2024-25',
+    taxYear: '2025-26',
     annualSalary: 90000,
     frequency: 'fortnightly',
     hasHELP: false,
+    taxResidency: 'resident',
     hasPrivateHealth: false,
   });
 
@@ -447,25 +378,39 @@ export const DetailedPayCalculatorCard: React.FC = () => {
     onAdd: () => void,
     onChange: (id: string, data: Partial<T>) => void,
     onRemove: (id: string) => void,
-    placeholderPrefix: string
+    placeholderPrefix: string,
+    tooltipContent?: string,
+    tooltipSection?: string
   ) => (
-    <div className="rounded-2xl border border-slate-200/80 bg-white px-4 py-4 shadow-sm dark:border-dark-border dark:bg-dark-surface">
-      <div className="mb-3 flex items-center justify-between">
-        <p className="text-sm font-semibold text-slate-800 dark:text-white">{title}</p>
+    <>
+      <div className="flex items-center justify-between text-sm font-semibold text-slate-600 pl-1">
+        {tooltipContent && tooltipSection ? (
+          <div className="flex items-center gap-1.5">
+            <span>{title}</span>
+            <InfoTooltipWithLink
+              content={tooltipContent}
+              targetSection={tooltipSection}
+            />
+          </div>
+        ) : (
+          <span>{title}</span>
+        )}
         <button
           type="button"
           onClick={onAdd}
-          className="rounded-full border border-brand-500 bg-white px-4 py-1 text-sm font-semibold text-brand-600 transition hover:bg-brand-50 dark:bg-dark-surface dark:text-brand-400 dark:hover:bg-dark-surfaceAlt"
+          className="rounded-full border border-brand-500 px-3 py-1 text-xs font-semibold text-brand-500"
         >
           Add
         </button>
       </div>
-      {entries.length === 0 ? (
-        <p className="text-sm text-slate-500 dark:text-dark-muted">
-          No {title.toLowerCase()} configured.
-        </p>
-      ) : (
-        <div className="space-y-3">
+      <div className="mt-3 space-y-3">
+        {entries.length === 0 && (
+          <p className="pl-3 text-xs text-slate-500 dark:text-dark-muted">
+            No {title.toLowerCase()} configured.
+          </p>
+        )}
+        {entries.length > 0 && (
+          <div className="space-y-3">
           {entries.map((entry, index) => (
             <div
               key={entry.id}
@@ -556,9 +501,10 @@ export const DetailedPayCalculatorCard: React.FC = () => {
               </div>
             </div>
           ))}
-        </div>
-      )}
-    </div>
+          </div>
+        )}
+      </div>
+    </>
   );
 
   const incomePerPeriod =
@@ -594,8 +540,14 @@ export const DetailedPayCalculatorCard: React.FC = () => {
   const firstColumnLabel = isAnnualOrProjection ? 'Weekly' : frequencyLabels[inputs.frequency];
   const periodsForFirstColumn = isAnnualOrProjection ? 52 : periods;
 
-  const salarySacrificeTotal = salarySacrifice.reduce((sum, entry) => sum + (entry.amount || 0), 0);
-  const concessionalDeductionsTotal = concessionalDeductions.reduce((sum, entry) => sum + (entry.amount || 0), 0);
+  const salarySacrificeTotal = salarySacrifice.reduce(
+    (sum, entry) => sum + calculateEntryAnnualAmount(entry),
+    0
+  );
+  const concessionalDeductionsTotal = concessionalDeductions.reduce(
+    (sum, entry) => sum + calculateEntryAnnualAmount(entry),
+    0
+  );
 
   return (
     <div className="space-y-4">
@@ -644,38 +596,55 @@ export const DetailedPayCalculatorCard: React.FC = () => {
         </div>
       </div>
 
-      <div className="space-y-3">
-        {renderEntryList(
-          'Additional income',
-          additionalIncome,
-          handleAddIncome,
-          handleUpdateIncome,
-          handleRemoveIncome,
-          'Income'
-        )}
+      <div className="space-y-4">
+        <div>
+          {renderEntryList(
+            'Additional income',
+            additionalIncome,
+            handleAddIncome,
+            handleUpdateIncome,
+            handleRemoveIncome,
+            'Income',
+            'Additional income sources beyond your primary salary.',
+            'financial-disclaimer'
+          )}
+        </div>
 
-        {renderEntryList(
-          'Salary sacrifice',
-          salarySacrifice,
-          handleAddSacrifice,
-          handleUpdateSacrifice,
-          handleRemoveSacrifice,
-          'Sacrifice'
-        )}
+        <div>
+          {renderEntryList(
+            'Salary sacrifice',
+            salarySacrifice,
+            handleAddSacrifice,
+            handleUpdateSacrifice,
+            handleRemoveSacrifice,
+            'Sacrifice',
+            'Pre-tax salary sacrificed to superannuation or other benefits.',
+            'salary-sacrifice'
+          )}
+        </div>
 
-        {renderEntryList(
-          'Concessional super deductions',
-          concessionalDeductions,
-          handleAddDeduction,
-          handleUpdateDeduction,
-          handleRemoveDeduction,
-          'Deduction'
-        )}
+        <div>
+          {renderEntryList(
+            'Concessional super deductions',
+            concessionalDeductions,
+            handleAddDeduction,
+            handleUpdateDeduction,
+            handleRemoveDeduction,
+            'Deduction',
+            'Tax-deductible superannuation contributions.',
+            'salary-sacrifice'
+          )}
+        </div>
+
+        <div className="border-t border-slate-200 dark:border-dark-border pt-4"></div>
 
         <div className="flex items-center justify-between">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted">
-            HECS / HELP debt
-          </p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted">
+              HECS / HELP debt
+            </p>
+            <Tooltip content="Higher Education Loan Program repayments are calculated based on your income" />
+          </div>
           <ToggleGroup
             options={yesNoOptions}
             value={helpToggleValue}
@@ -685,13 +654,37 @@ export const DetailedPayCalculatorCard: React.FC = () => {
         </div>
 
         <div className="flex items-center justify-between">
-          <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted">
-            Private Health Insurance
-          </p>
+          <div className="flex items-center gap-1.5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted">
+              Private Health Insurance
+            </p>
+            <InfoTooltipWithLink
+              content="Affects Medicare Levy Surcharge. May reduce your tax."
+              targetSection="private-health"
+            />
+          </div>
           <ToggleGroup
             options={yesNoOptions}
             value={healthToggleValue}
             onChange={(value) => set('hasPrivateHealth', value === 'yes')}
+            size="sm"
+          />
+        </div>
+
+        <div className="flex items-center justify-between">
+          <div className="flex items-center gap-1.5">
+            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted whitespace-nowrap">
+              Tax Residency
+            </p>
+            <InfoTooltipWithLink
+              content="Your tax residency status affects your tax rates and obligations."
+              targetSection="tax-residency"
+            />
+          </div>
+          <ToggleGroup
+            options={taxResidencyOptions}
+            value={inputs.taxResidency}
+            onChange={(value) => set('taxResidency', value)}
             size="sm"
           />
         </div>
@@ -786,10 +779,10 @@ export const DetailedPayCalculatorCard: React.FC = () => {
                   <span className="text-slate-700 dark:text-dark-text">{row.label}</span>
                   <div className="flex gap-4">
                     <span className="min-w-[80px] text-right font-semibold text-slate-900 dark:text-white">
-                      {fmtAUD0(row.perPeriod)}
+                      {formatCurrency(row.perPeriod)}
                     </span>
                     <span className="min-w-[80px] text-right font-semibold text-slate-900 dark:text-white">
-                      {fmtAUD0(row.annual)}
+                      {formatCurrency(row.annual)}
                     </span>
                   </div>
                 </div>
@@ -798,64 +791,52 @@ export const DetailedPayCalculatorCard: React.FC = () => {
           </div>
         </div>
 
-        <CollapsibleContainer title="Pay Breakdown (Visualised)" collapsible defaultOpen={false}>
-          <IncomeBreakdownChart
-            netPay={results.netAnnual}
-            incomeTax={results.incomeTaxAnnual}
-            medicareLevy={results.medicareAnnual}
-            helpHecs={results.helpAnnual}
-            medicareSurcharge={results.medicareSurcharge}
-            salarySacrifice={salarySacrificeTotal}
-            concessionalSuper={concessionalDeductionsTotal}
-          />
-        </CollapsibleContainer>
-
-        <div className="rounded-2xl border border-slate-200/80 bg-slate-50 px-4 py-3 text-slate-600 shadow-sm dark:border-dark-border dark:bg-dark-surfaceAlt dark:text-dark-text">
-          <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted">
-            Take-home pay
-          </p>
-          <div className="flex items-end justify-between gap-4">
-            <div>
-              <p className="text-[11px] capitalize text-slate-500 dark:text-dark-muted">
-                {firstColumnLabel}
-              </p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                {fmtAUD0(results.netAnnual / periodsForFirstColumn)}
-              </p>
-            </div>
-            <div className="text-right">
-              <p className="text-[11px] text-slate-500 dark:text-dark-muted">Annual</p>
-              <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                {fmtAUD0(results.netAnnual)}
-              </p>
-            </div>
+        <div>
+          <div className="mb-1 flex items-center gap-1.5">
+            <label className="text-xs font-semibold text-slate-500 dark:text-dark-muted">Take-home pay</label>
+            <InfoTooltipWithLink
+              content="These are estimates only. Actual amounts may vary."
+              targetSection="financial-disclaimer"
+            />
           </div>
+          <table className="w-full table-fixed text-left text-xs text-slate-600 dark:text-dark-text">
+            <thead>
+              <tr>
+                <th className="pb-1">Week</th>
+                <th className="pb-1">Fortnight</th>
+                <th className="pb-1">Month</th>
+                <th className="pb-1">Year</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="py-1">{formatCurrency(results.netAnnual / 52)}</td>
+                <td className="py-1">{formatCurrency(results.netAnnual / 26)}</td>
+                <td className="py-1">{formatCurrency(results.netAnnual / 12)}</td>
+                <td className="py-1">{formatCurrency(results.netAnnual)}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
 
-        <div className="rounded-2xl border border-slate-200/80 bg-slate-50 px-4 py-3 text-slate-600 dark:border-dark-border dark:bg-dark-surfaceAlt dark:text-dark-text">
-          <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted">
-            Annual Summary
-          </p>
-          <div className="flex items-center justify-between text-sm">
-            <div className="flex-1 text-center">
-              <p className="text-xs text-slate-500 dark:text-dark-muted">Gross Pay</p>
-              <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
-                {fmtAUD0(results.grossAnnual)}
-              </p>
-            </div>
-            <div className="flex-1 text-center">
-              <p className="text-xs text-slate-500 dark:text-dark-muted">Net Pay</p>
-              <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
-                {fmtAUD0(results.netAnnual)}
-              </p>
-            </div>
-            <div className="flex-1 text-center">
-              <p className="text-xs text-slate-500 dark:text-dark-muted">Nominal Tax Rate</p>
-              <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
-                {percentText(results.effectiveRate)}
-              </p>
-            </div>
-          </div>
+        <div>
+          <label className="mb-1 block text-xs font-semibold text-slate-500 dark:text-dark-muted">Annual Summary</label>
+          <table className="w-full table-fixed text-left text-xs text-slate-600 dark:text-dark-text">
+            <thead>
+              <tr>
+                <th className="pb-1">Gross Pay</th>
+                <th className="pb-1">Net Pay</th>
+                <th className="pb-1">Nominal Tax Rate</th>
+              </tr>
+            </thead>
+            <tbody>
+              <tr>
+                <td className="py-1">{formatCurrency(results.grossAnnual)}</td>
+                <td className="py-1">{formatCurrency(results.netAnnual)}</td>
+                <td className="py-1">{formatPercent(results.effectiveRate)}</td>
+              </tr>
+            </tbody>
+          </table>
         </div>
       </div>
     </div>

@@ -5,6 +5,7 @@ import { LoansPage } from './pages/LoansPage';
 import { PayTaxPage } from './pages/PayTaxPage';
 import { SuperPage } from './pages/SuperPage';
 import { LoginPage } from './pages/LoginPage';
+import { InformationPage } from './pages/InformationPage';
 
 export const App: React.FC = () => {
   const basename = import.meta.env.BASE_URL;
@@ -17,6 +18,7 @@ export const App: React.FC = () => {
           <Route path="loans" element={<LoansPage />} />
           <Route path="pay-tax" element={<PayTaxPage />} />
           <Route path="super" element={<SuperPage />} />
+          <Route path="information" element={<InformationPage />} />
           <Route path="login" element={<LoginPage />} />
           <Route path="*" element={<Navigate to="/loans" replace />} />
         </Route>

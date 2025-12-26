@@ -24,7 +24,7 @@ export const CollapsibleContainer: React.FC<CollapsibleContainerProps> = ({
   title,
   children,
   collapsible = false,
-  defaultOpen = true,
+  defaultOpen = false,
   padded = true,
   accent = 'slate',
 }) => {

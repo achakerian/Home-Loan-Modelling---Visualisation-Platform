@@ -3,6 +3,7 @@ import { CollapsibleContainer } from '../components/CollapsibleContainer';
 import { ToggleGroup, ToggleOption } from '../components/ToggleGroup';
 import { CurrencyInput, NumberInput } from '../components/inputs';
 import { formatCurrency, toNumberOrZero } from '../lib/formatters';
+import { Tooltip } from '../components/Tooltip';
 
 type SimpleEntry = { id: string; label: string; amount: number };
 
@@ -211,9 +212,12 @@ export const BorrowingPowerView: React.FC<BorrowingPowerViewProps> = ({
         </table>
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted">
-              HECS / HELP debt
-            </p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted">
+                HECS / HELP debt
+              </p>
+              <Tooltip content="See the banner labelled 'HECS/HELP Information' below for details" />
+            </div>
             <ToggleGroup
               options={hecsOptions}
               value={hasHecs ? 'yes' : 'no'}
@@ -238,42 +242,6 @@ export const BorrowingPowerView: React.FC<BorrowingPowerViewProps> = ({
             </p>
             <p className="text-[11px] text-slate-500 dark:text-dark-muted">Indicative only</p>
           </div>
-          <CollapsibleContainer title="Assumptions" collapsible accent="purple">
-            <div className="space-y-3 text-sm text-slate-600 dark:text-dark-muted">
-              <div className="rounded-2xl border border-slate-200/80 bg-slate-50 px-4 py-3 text-slate-600 dark:border-dark-border dark:bg-dark-surfaceAlt dark:text-dark-text">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted">
-                  Living expenses (HEM)
-                </p>
-                <p className="text-lg font-semibold text-slate-800 dark:text-white">
-                  {formatCurrency(hemLivingExpensesMonthly)} /month
-                </p>
-                <p className="text-xs text-slate-500 dark:text-dark-muted">Automatically adjusted for dependants</p>
-              </div>
-              <div className="rounded-2xl border border-slate-200/80 bg-slate-50 px-4 py-3 text-slate-600 dark:border-dark-border dark:bg-dark-surfaceAlt dark:text-dark-text">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted">
-                  Debt assumption
-                </p>
-                <p className="text-sm text-slate-600 dark:text-dark-text">
-                  All debts assume a 10% repayment rate calculated over 5 years. If specific details are
-                  required please use the Detailed Calculator.
-                </p>
-              </div>
-              <div className="rounded-2xl border border-slate-200/80 bg-slate-50 px-4 py-3 text-slate-600 dark:border-dark-border dark:bg-dark-surfaceAlt dark:text-dark-text">
-                <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted">
-                  How we estimate borrowing power
-                </p>
-                <p className="text-sm text-slate-600 dark:text-dark-text">
-                  We shade household income to {(borrowingPowerMeta.incomeShadingFactor * 100).toFixed(0)}%, subtract
-                  HEM living expenses and the debt assumptions, then solve for the largest loan that can be
-                  repaid over {borrowingPowerMeta.termYears} years at an assessment rate of
-                  {` ${borrowingPowerMeta.assessmentRate.toFixed(2)}% (your ${borrowingPowerMeta.userRate.toFixed(2)}% rate + ${borrowingPowerMeta.bufferPercent}% buffer).`}
-                </p>
-              </div>
-              <p className="text-xs text-slate-500 dark:text-dark-muted">
-                Since this is just a simple calculator, treat these figures as indicative rather than actual borrowing outcomes.
-              </p>
-            </div>
-          </CollapsibleContainer>
         </div>
       </div>
     </div>

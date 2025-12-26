@@ -1,3 +1,29 @@
+/**
+ * @deprecated This file has been superseded by calc-engine package.
+ *
+ * All tax calculations have been consolidated into the calc-engine package
+ * as the single source of truth. This file is maintained for backward
+ * compatibility but will be removed in a future release.
+ *
+ * Migration Guide:
+ * - Import TaxYearId from '@financial-calc/calc-engine' or '../../../calc-engine/src'
+ * - Use calculatePaySummary() from calc-engine for all tax calculations
+ * - Use getConcessionalCap() from calc-engine for super contribution caps
+ * - Use TAX_YEAR_CONFIGS and TAX_YEAR_MAP from calc-engine for tax year data
+ *
+ * Benefits of using calc-engine:
+ * - Supports 6 tax years (2020-21 through 2025-26)
+ * - Includes resident, non-resident, and Working Holiday Maker calculations
+ * - Implements both legacy and marginal HELP systems
+ * - Medicare low-income phase-in support
+ * - Low Income Tax Offset (LITO) calculations
+ * - Medicare Levy Surcharge (MLS) calculations
+ * - Comprehensive test coverage (163 tests)
+ *
+ * @see /calc-engine/src/pay/taxYearData.ts
+ * @see /calc-engine/src/pay/calculatePaySummary.ts
+ */
+
 import type { TaxResidency, MedicareOption } from './payTypes';
 
 export type TaxYearId =

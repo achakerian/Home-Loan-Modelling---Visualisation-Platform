@@ -7,7 +7,7 @@ import { TaxChecklistSection } from '../features/TaxChecklistSection';
 const items: FeatureAccordionItem[] = [
   {
     badge: 'Income Tax',
-    title: 'Pay summary',
+    title: 'Pay Summary',
     content: <PayTaxSection />,
   },
   {
@@ -20,7 +20,7 @@ const items: FeatureAccordionItem[] = [
 export const PayTaxPage: React.FC = () => {
   return (
     <PageContainer>
-      <FeatureAccordion items={items} initialOpen={0} />
+      <FeatureAccordion items={items} initialOpen={null} />
     </PageContainer>
   );
 };

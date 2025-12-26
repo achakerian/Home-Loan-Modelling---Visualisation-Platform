@@ -579,6 +579,7 @@ export function estimateBorrowingCapacity(
   };
 }
 
+// Pay calculation types
 export type {
   PayCalculateRequest,
   PayCalculateResponse,
@@ -586,4 +587,15 @@ export type {
   PayFrequency,
   Residency
 } from './pay/types';
+
+// Tax year data types
+export type { TaxYearConfig } from './pay/taxYearData';
+
+// Pay calculation functions
 export { calculatePaySummary } from './pay/calculatePaySummary';
+export { calculateLITO } from './pay/calculateLITO';
+export { calculateMedicareSurcharge } from './pay/calculateMedicareSurcharge';
+export { getConcessionalCap } from './pay/getConcessionalCap';
+
+// Tax year configuration data
+export { TAX_YEAR_CONFIGS, TAX_YEAR_MAP, DEFAULT_TAX_YEAR } from './pay/taxYearData';

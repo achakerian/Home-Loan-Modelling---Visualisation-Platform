@@ -1,5 +1,6 @@
 import React from 'react';
 import { PieChart, Pie, Cell, ResponsiveContainer, Legend, Tooltip } from 'recharts';
+import { formatCurrency } from '../lib/formatters';
 
 interface IncomeBreakdownChartProps {
   netPay: number;
@@ -69,28 +70,52 @@ export const IncomeBreakdownChart: React.FC<IncomeBreakdownChartProps> = ({
     data.push({ name: 'HELP / HECS', value: helpHecs, color: COLORS.helpHecs });
   }
 
-  const formatValue = (value: number) => {
-    return new Intl.NumberFormat('en-AU', {
-      style: 'currency',
-      currency: 'AUD',
-      maximumFractionDigits: 0,
-    }).format(value);
-  };
 
-  const formatPercent = (value: number) => {
+  // Calculate percentages that sum to exactly 100%
+  const percentages = React.useMemo(() => {
+    if (total === 0) return data.map(() => 0);
+
+    // Calculate raw percentages
+    const rawPercentages = data.map(item => (item.value / total) * 100);
+
+    // Round to integers
+    const roundedPercentages = rawPercentages.map(p => Math.round(p));
+
+    // Calculate the difference from 100
+    const sum = roundedPercentages.reduce((acc, p) => acc + p, 0);
+    const diff = 100 - sum;
+
+    // If there's a difference, adjust the largest segment
+    if (diff !== 0) {
+      // Find index of largest value
+      const maxIndex = data.reduce((maxIdx, item, idx, arr) =>
+        item.value > arr[maxIdx].value ? idx : maxIdx, 0
+      );
+      roundedPercentages[maxIndex] += diff;
+    }
+
+    return roundedPercentages;
+  }, [data, total]);
+
+  const formatPercent = (value: number, index?: number) => {
+    if (index !== undefined && percentages[index] !== undefined) {
+      return `${percentages[index]}%`;
+    }
     const percent = (value / total) * 100;
     return `${percent.toFixed(0)}%`;
   };
 
   const CustomTooltip = ({ active, payload }: any) => {
     if (active && payload && payload.length) {
+      // Find the index of this data point
+      const dataIndex = data.findIndex(item => item.name === payload[0].name);
       return (
         <div className="rounded-lg border border-slate-200 bg-white p-3 shadow-lg dark:border-dark-border dark:bg-dark-surface">
           <p className="text-sm font-semibold text-slate-900 dark:text-white">
             {payload[0].name}
           </p>
           <p className="text-sm text-slate-600 dark:text-dark-text">
-            {formatValue(payload[0].value)} ({formatPercent(payload[0].value)})
+            {formatCurrency(payload[0].value)} ({formatPercent(payload[0].value, dataIndex)})
           </p>
         </div>
       );
@@ -113,10 +138,10 @@ export const IncomeBreakdownChart: React.FC<IncomeBreakdownChartProps> = ({
             </div>
             <div className="flex items-center gap-2">
               <span className="font-semibold text-slate-900 dark:text-white">
-                {formatValue(entry.payload.value)}
+                {formatCurrency(entry.payload.value)}
               </span>
               <span className="text-slate-500 dark:text-dark-muted">
-                {formatPercent(entry.payload.value)}
+                {formatPercent(entry.payload.value, index)}
               </span>
             </div>
           </div>

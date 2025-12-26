@@ -211,7 +211,7 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
             options={frequencyOptions}
             value={frequency}
             onChange={onFrequencyChange}
-            size="md"
+            size="sm"
           />
           <div className="grid grid-cols-2 gap-3 text-sm">
             <PercentInput
@@ -238,6 +238,14 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
           accent="blue"
           padded={false}
         >
+          <div className="mb-4">
+            <p className="text-xs text-slate-500 dark:text-dark-muted">
+              This graph shows how additional repayments or interest rate changes will impact the cost and time of your loan.
+            </p>
+            <BalanceChart schedule={schedule} height={300} />
+            
+          </div>
+
           <div className="flex items-center justify-between text-sm font-semibold text-slate-600 pl-1">
             <span>Additional repayments</span>
             <button
@@ -438,21 +446,6 @@ export const LoanCalculatorView: React.FC<LoanCalculatorViewProps> = ({
               </div>
             );})}
           </div>
-        </CollapsibleContainer>
-      </div>
-
-      <div className="mt-6">
-        <CollapsibleContainer
-          title="Loan Balance (graph)"
-          padded={false}
-          collapsible
-          defaultOpen={false}
-          accent="blue"
-        >
-          <p className="text-xs text-slate-500">
-            Hover over the graph to see the breakdown between principle vs interest for each month of the loan.
-          </p>
-          <BalanceChart schedule={schedule} height={300} />
         </CollapsibleContainer>
       </div>
 

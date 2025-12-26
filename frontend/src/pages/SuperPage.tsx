@@ -1,9 +1,17 @@
 import React from 'react';
+import { FeatureAccordion, FeatureAccordionItem } from '../components/FeatureAccordion';
 import { PageContainer } from '../components/PageContainer';
 
-export const SuperPage: React.FC = () => {
+const SuperComingSoonContent: React.FC = () => {
   return (
-    <PageContainer>
+    <div className="space-y-5">
+      <div className="rounded-2xl border border-indigo-200 bg-indigo-50 p-4 text-sm text-indigo-900 shadow-sm dark:border-indigo-900/30 dark:bg-indigo-950/20 dark:text-indigo-100">
+        <p className="font-semibold">Super calculators are under development</p>
+        <p className="mt-1 text-xs text-indigo-800 dark:text-indigo-200">
+          We're aligning product assumptions, compliance reviews, and data sources before releasing the new superannuation tools.
+        </p>
+      </div>
+
       <div className="rounded-3xl border-2 border-dashed border-slate-400 bg-white/80 p-8 text-center text-slate-700 shadow-lg backdrop-blur dark:border-dark-border dark:bg-dark-surfaceAlt/80 dark:text-dark-text">
         <p className="text-sm font-semibold text-slate-500 dark:text-dark-muted">(Under Construction)</p>
         <h1 className="mt-2 text-2xl font-semibold text-slate-900 dark:text-dark-text">Super tools coming soon</h1>
@@ -23,6 +31,22 @@ export const SuperPage: React.FC = () => {
         </div>
         <p className="mt-6 text-sm text-slate-500 dark:text-dark-muted">— Super Calc Team</p>
       </div>
+    </div>
+  );
+};
+
+const items: FeatureAccordionItem[] = [
+  {
+    badge: 'Super',
+    title: 'Super tools (in development)',
+    content: <SuperComingSoonContent />,
+  },
+];
+
+export const SuperPage: React.FC = () => {
+  return (
+    <PageContainer>
+      <FeatureAccordion items={items} initialOpen={null} />
     </PageContainer>
   );
 };

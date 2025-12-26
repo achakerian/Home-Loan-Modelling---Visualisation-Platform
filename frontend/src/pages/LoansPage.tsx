@@ -7,7 +7,7 @@ import { BorrowingPowerSection } from '../features/BorrowingPowerSection';
 const items: FeatureAccordionItem[] = [
   {
     badge: 'Mortgage',
-    title: 'Loan Calculator (simple)',
+    title: 'Loan Calculator',
     content: <LoanCalculatorCard />,
   },
   {

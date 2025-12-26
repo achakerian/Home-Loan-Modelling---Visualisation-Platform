@@ -4,14 +4,14 @@ import {
   HomeIcon,
   CalculatorIcon,
   PiggyBankIcon,
-  UserIcon,
+  InfoIcon,
 } from './icons';
 
 const navItems = [
   { to: '/loans', label: 'Loans', icon: HomeIcon },
   { to: '/pay-tax', label: 'Pay & Tax', icon: CalculatorIcon },
   { to: '/super', label: 'Super', icon: PiggyBankIcon },
-  { to: '/login', label: 'Login', icon: UserIcon },
+  { to: '/information', label: 'Information', icon: InfoIcon },
 ];
 
 export const BottomNav: React.FC = () => {

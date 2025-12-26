@@ -1,8 +1,17 @@
+/**
+ * Pay Summary Calculator
+ *
+ * Calculates tax withholding, net pay, and superannuation for Australian taxpayers.
+ * Supports resident, non-resident, and Working Holiday Maker (WHM) tax treatments.
+ */
+
+import { TAX_YEAR_MAP, type TaxBracket } from './taxYearData';
 import {
   PayCalculateRequest,
   PayCalculateResponse,
   PayBreakdown,
-  Residency
+  Residency,
+  TaxYearId,
 } from './types';
 
 const clamp0 = (n: number) => (Number.isFinite(n) ? Math.max(0, n) : 0);
@@ -11,122 +20,202 @@ const periodsPerYear = {
   weekly: 52,
   fortnightly: 26,
   monthly: 12,
-  annually: 1
+  annually: 1,
 } as const;
 
-type Bracket = { from: number; to?: number; base: number; rate: number };
-
-const RESIDENT_BRACKETS: Record<'2024-25' | '2025-26', Bracket[]> = {
-  '2024-25': [
-    { from: 0, to: 18200, base: 0, rate: 0 },
-    { from: 18200, to: 45000, base: 0, rate: 0.16 },
-    { from: 45000, to: 135000, base: 4288, rate: 0.3 },
-    { from: 135000, to: 190000, base: 31288, rate: 0.37 },
-    { from: 190000, base: 51638, rate: 0.45 }
-  ],
-  '2025-26': [
-    { from: 0, to: 18200, base: 0, rate: 0 },
-    { from: 18200, to: 45000, base: 0, rate: 0.16 },
-    { from: 45000, to: 135000, base: 4288, rate: 0.3 },
-    { from: 135000, to: 190000, base: 31288, rate: 0.37 },
-    { from: 190000, base: 51638, rate: 0.45 }
-  ]
-};
-
-const MEDICARE_RATE = 0.02;
-
-const HELP_2024_25: Array<{ from: number; to?: number; rate: number }> = [
-  { from: 0, to: 54435, rate: 0 },
-  { from: 54435, to: 62850, rate: 0.01 },
-  { from: 62850, to: 66620, rate: 0.02 },
-  { from: 66620, to: 70618, rate: 0.025 },
-  { from: 70618, to: 74855, rate: 0.03 },
-  { from: 74855, to: 79346, rate: 0.035 },
-  { from: 79346, to: 84107, rate: 0.04 },
-  { from: 84107, to: 89153, rate: 0.045 },
-  { from: 89153, to: 94502, rate: 0.05 },
-  { from: 94502, to: 100173, rate: 0.055 },
-  { from: 100173, to: 106183, rate: 0.06 },
-  { from: 106183, to: 112554, rate: 0.065 },
-  { from: 112554, to: 119307, rate: 0.07 },
-  { from: 119307, to: 126465, rate: 0.075 },
-  { from: 126465, to: 134053, rate: 0.08 },
-  { from: 134053, to: 142097, rate: 0.085 },
-  { from: 142097, to: 150623, rate: 0.09 },
-  { from: 150623, to: 159660, rate: 0.095 },
-  { from: 159660, rate: 0.1 }
-];
-
-const HELP_2025_26 = {
-  threshold: 67000,
-  band1To: 124999,
-  band1Rate: 0.15,
-  band2From: 125000,
-  band2Base: 8700,
-  band2Rate: 0.17
-};
-
-function calcResidentIncomeTax(
-  taxYear: '2024-25' | '2025-26',
-  taxable: number
+/**
+ * Calculate income tax based on residency status
+ */
+function calculateIncomeTax(
+  taxYear: TaxYearId,
+  taxableIncome: number,
+  residency: Residency,
+  claimTaxFree: boolean
 ): number {
-  const income = clamp0(taxable);
-  const brackets = RESIDENT_BRACKETS[taxYear];
-  const b = brackets.find(
-    (x) => income >= x.from && (x.to === undefined || income <= x.to)
-  );
-  if (!b) return 0;
-  return clamp0(b.base + (income - b.from) * b.rate);
-}
+  const config = TAX_YEAR_MAP[taxYear];
+  const income = clamp0(taxableIncome);
 
-function calcHelp2024_25(income: number): number {
-  const x = clamp0(income);
-  const row = HELP_2024_25.find(
-    (r) => x >= r.from && (r.to === undefined || x <= r.to)
-  );
-  return x * (row?.rate ?? 0);
-}
+  let brackets: TaxBracket[];
 
-function calcHelp2025_26(income: number): number {
-  const x = clamp0(income);
-  if (x <= HELP_2025_26.threshold) return 0;
-  if (x <= HELP_2025_26.band1To) {
-    return (x - HELP_2025_26.threshold) * HELP_2025_26.band1Rate;
+  if (residency === 'nonResident') {
+    brackets = config.nonResident.brackets;
+  } else if (residency === 'workingHoliday') {
+    brackets = config.whm.brackets;
+  } else {
+    // Resident
+    brackets = config.resident.brackets;
+
+    // If not claiming tax-free threshold, remove the first bracket
+    if (!claimTaxFree) {
+      // Apply rate from bracket 2 to all income
+      brackets = brackets.slice(1);
+    }
   }
-  return (
-    HELP_2025_26.band2Base +
-    (x - HELP_2025_26.band2From) * HELP_2025_26.band2Rate
+
+  // Find the applicable bracket
+  const bracket = brackets.find(
+    (b) => income >= b.from && (b.to === undefined || income <= b.to)
   );
+
+  if (!bracket) return 0;
+
+  return clamp0(bracket.baseTax + (income - bracket.from) * bracket.rate);
 }
 
-function calcHelp(taxYear: '2024-25' | '2025-26', income: number): number {
-  return taxYear === '2025-26'
-    ? calcHelp2025_26(income)
-    : calcHelp2024_25(income);
+/**
+ * Calculate Medicare levy with low-income phase-in support
+ */
+function calculateMedicare(
+  taxYear: TaxYearId,
+  taxableIncome: number,
+  option: 'full' | 'reduced' | 'exempt'
+): number {
+  if (option === 'exempt') return 0;
+
+  const config = TAX_YEAR_MAP[taxYear].medicare;
+  const income = clamp0(taxableIncome);
+
+  const baseRate = option === 'reduced' ? config.reducedRate : config.fullRate;
+
+  // If thresholds are not configured (set to 0), use flat rate
+  if (
+    config.lowIncomeThreshold <= 0 ||
+    config.lowIncomePhaseInEnd <= config.lowIncomeThreshold
+  ) {
+    return income * baseRate;
+  }
+
+  // Below threshold: no levy
+  if (income <= config.lowIncomeThreshold) {
+    return 0;
+  }
+
+  // In phase-in zone: shade-in formula
+  if (income < config.lowIncomePhaseInEnd) {
+    // The ATO uses a formula where the levy is a percentage of the excess
+    // over the threshold, calibrated so it equals the full levy at phaseInEnd
+    const shadeRate =
+      (baseRate * config.lowIncomePhaseInEnd) /
+      (config.lowIncomePhaseInEnd - config.lowIncomeThreshold);
+    return shadeRate * (income - config.lowIncomeThreshold);
+  }
+
+  // Above phase-in zone: full levy
+  return income * baseRate;
 }
 
+/**
+ * Calculate HELP/HECS repayment
+ * Supports both legacy (whole-income rate) and marginal systems
+ */
+function calculateHELP(taxYear: TaxYearId, taxableIncome: number): number {
+  const config = TAX_YEAR_MAP[taxYear].help;
+  const income = clamp0(taxableIncome);
+
+  if (config.isMarginalSystem) {
+    // 2025-26+ marginal system
+    // Find the active band
+    let activeBand = config.thresholds[0]; // Start with first band
+    for (const band of config.thresholds) {
+      if (income >= band.minIncome) {
+        activeBand = band;
+      } else {
+        break;
+      }
+    }
+
+    // No repayment if rate is 0
+    if (!activeBand || activeBand.rate <= 0) return 0;
+
+    // If wholeIncome flag is set, apply rate to whole income
+    if (activeBand.wholeIncome) {
+      return income * activeBand.rate;
+    }
+
+    // Otherwise, marginal calculation: base + rate on excess
+    const base = activeBand.baseRepayment ?? 0;
+    const excess = Math.max(income - activeBand.minIncome, 0);
+    return base + excess * activeBand.rate;
+  } else {
+    // Legacy system (2024-25 and earlier): flat rate on whole income
+    // Find the last band where income >= minIncome
+    let currentRate = 0;
+    for (const band of config.thresholds) {
+      if (income >= band.minIncome) {
+        currentRate = band.rate;
+      } else {
+        break;
+      }
+    }
+
+    return currentRate > 0 ? income * currentRate : 0;
+  }
+}
+
+/**
+ * Calculate pay summary for a given request
+ */
 export function calculatePaySummary(
   req: PayCalculateRequest
 ): PayCalculateResponse {
-  const residency: Residency = (req.residency ?? 'resident') as Residency;
+  // Extract and default parameters
+  const residency: Residency = req.residency ?? 'resident';
+  const claimTaxFree = req.claimTaxFreeThreshold ?? true;
 
-  const annualSalary = clamp0(req.annualSalary);
+  // Non-residents and WHM are automatically exempt from Medicare levy
+  const medicareOption: 'full' | 'reduced' | 'exempt' =
+    residency === 'nonResident' || residency === 'workingHoliday'
+      ? 'exempt'
+      : req.medicareExempt
+        ? 'exempt'
+        : req.medicareReduced
+          ? 'reduced'
+          : 'full';
+
   const deductions = clamp0(req.deductions);
   const superRate = clamp0(req.superRate);
 
+  // Handle includeSuper flag
+  let annualSalary: number;
+  let employerSuper: number;
+
+  if (req.includeSuper && superRate > 0) {
+    // Total package includes super, back-calculate base salary
+    const totalPackage = clamp0(req.annualSalary);
+    annualSalary = totalPackage / (1 + superRate);
+    employerSuper = totalPackage - annualSalary;
+  } else {
+    // Base salary only, super is on top
+    annualSalary = clamp0(req.annualSalary);
+    employerSuper = annualSalary * superRate;
+  }
+
   const taxableAnnual = clamp0(annualSalary - deductions);
 
-  const incomeTaxAnnual = calcResidentIncomeTax(req.taxYear, taxableAnnual);
-  const medicareAnnual = req.medicareExempt
-    ? 0
-    : taxableAnnual * MEDICARE_RATE;
-  const helpAnnual = req.hasHELP ? calcHelp(req.taxYear, taxableAnnual) : 0;
+  // Calculate tax components
+  const incomeTaxAnnual = calculateIncomeTax(
+    req.taxYear,
+    taxableAnnual,
+    residency,
+    claimTaxFree
+  );
+
+  const medicareAnnual = calculateMedicare(
+    req.taxYear,
+    taxableAnnual,
+    medicareOption
+  );
+
+  const helpAnnual = req.hasHELP
+    ? calculateHELP(req.taxYear, taxableAnnual)
+    : 0;
 
   const totalWithheldAnnual = incomeTaxAnnual + medicareAnnual + helpAnnual;
   const netAnnual = annualSalary - totalWithheldAnnual;
 
   const periods = periodsPerYear[req.frequency];
 
+  // Build annual breakdown
   const annual: PayBreakdown = {
     gross: annualSalary,
     taxable: taxableAnnual,
@@ -135,9 +224,10 @@ export function calculatePaySummary(
     help: helpAnnual,
     totalWithheld: totalWithheldAnnual,
     net: netAnnual,
-    employerSuper: annualSalary * superRate
+    employerSuper,
   };
 
+  // Build per-period breakdown
   const perPeriod: PayBreakdown = {
     gross: annual.gross / periods,
     taxable: annual.taxable / periods,
@@ -146,28 +236,41 @@ export function calculatePaySummary(
     help: annual.help / periods,
     totalWithheld: annual.totalWithheld / periods,
     net: annual.net / periods,
-    employerSuper: annual.employerSuper / periods
+    employerSuper: annual.employerSuper / periods,
   };
 
   const effectiveTaxRate =
     annual.gross > 0 ? annual.totalWithheld / annual.gross : 0;
+
+  // Build meta description
+  const config = TAX_YEAR_MAP[req.taxYear];
+  const residencyLabel =
+    residency === 'resident'
+      ? 'Resident'
+      : residency === 'nonResident'
+        ? 'Non-resident'
+        : 'WHM';
 
   return {
     meta: {
       taxYear: req.taxYear,
       residency,
       tables: {
-        residentIncomeTax: 'ATO resident rates (Stage 3)',
-        helpRepayment:
-          req.taxYear === '2025-26'
-            ? 'HELP 2025–26 marginal'
-            : 'HELP 2024–25 table',
-        medicareLevy: 'Medicare levy 2% (exemption toggle only)',
-        super: 'Employer super = gross × superRate'
-      }
+        residentIncomeTax: `${residencyLabel} rates (${config.label})`,
+        helpRepayment: config.help.isMarginalSystem
+          ? 'HELP marginal system'
+          : 'HELP legacy rates',
+        medicareLevy:
+          medicareOption === 'exempt'
+            ? 'Medicare levy exempt'
+            : medicareOption === 'reduced'
+              ? 'Medicare levy (reduced rate)'
+              : 'Medicare levy (standard rate)',
+        super: 'Employer super = gross × superRate',
+      },
     },
     perPeriod,
     annual,
-    effectiveTaxRate
+    effectiveTaxRate,
   };
 }

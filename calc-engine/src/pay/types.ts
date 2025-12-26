@@ -1,8 +1,8 @@
-export type TaxYearId = '2024-25' | '2025-26';
+export type TaxYearId = '2020-21' | '2021-22' | '2022-23' | '2023-24' | '2024-25' | '2025-26';
 
 export type PayFrequency = 'weekly' | 'fortnightly' | 'monthly' | 'annually';
 
-export type Residency = 'resident' | 'nonResident' | 'workingHoliday' | 'unknown';
+export type Residency = 'resident' | 'nonResident' | 'workingHoliday';
 
 export interface PayCalculateRequest {
   taxYear: TaxYearId;
@@ -11,6 +11,9 @@ export interface PayCalculateRequest {
   frequency: Exclude<PayFrequency, 'annually'>;
   hasHELP: boolean;
   medicareExempt: boolean;
+  medicareReduced?: boolean;
+  hasPrivateHealth?: boolean;
+  claimTaxFreeThreshold?: boolean;
   deductions: number;
   includeSuper: boolean;
   superRate: number;
@@ -31,7 +34,9 @@ export interface PayBreakdown {
   gross: number;
   taxable: number;
   incomeTax: number;
+  lito?: number;
   medicareLevy: number;
+  medicareSurcharge?: number;
   help: number;
   totalWithheld: number;
   net: number;

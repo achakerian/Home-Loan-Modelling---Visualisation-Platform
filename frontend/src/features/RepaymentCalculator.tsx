@@ -267,7 +267,18 @@ export const RepaymentCalculator: React.FC<RepaymentCalculatorProps> = ({
 
         <div style={{ marginBottom: '1.5rem' }}>
           <h3>Loan balance over time</h3>
+          <p
+            style={{
+              marginTop: '0.35rem',
+              marginBottom: '0.3rem',
+              fontSize: '0.85rem',
+              color: 'var(--text-muted)'
+            }}
+          >
+            This graph shows how additional repayments or interest rate changes will impact the cost and time of your loan.
+          </p>
           <BalanceChart schedule={result.schedule} />
+          
         </div>
 
         <RepaymentTable schedule={result.schedule} />

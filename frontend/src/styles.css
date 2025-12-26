@@ -7,11 +7,26 @@
 @layer base {
   :root {
     --title-heading-offset: 88px;
+    --text-main: #334155;
+    --chart-tooltip-bg: #f9fafb;
+    --chart-tooltip-text: #111827;
+    --chart-tooltip-label: #6b7280;
+  }
+
+  .dark {
+    --text-main: #cbd5e1;
+    --chart-tooltip-bg: #1e293b;
+    --chart-tooltip-text: #f1f5f9;
+    --chart-tooltip-label: #94a3b8;
   }
 
   body {
     font-family: 'Inter', 'SF Pro Display', 'Helvetica Neue', Arial, sans-serif;
     @apply m-0 min-h-screen bg-slate-100 text-slate-900 transition-colors duration-300;
+  }
+
+  .dark body {
+    @apply bg-dark-base text-dark-text;
   }
 
   input,

@@ -1,18 +1,21 @@
 import React, { useMemo, useState } from 'react';
 import { ToggleGroup, ToggleOption } from '../components/ToggleGroup';
 import { CurrencyInput } from '../components/inputs';
-import { formatCurrency } from '../lib/formatters';
-import { CollapsibleContainer } from '../components/CollapsibleContainer';
-import { IncomeBreakdownChart } from '../graphs/IncomeBreakdownChart';
+import { formatCurrency, formatPercent } from '../lib/formatters';
+import { Tooltip } from '../components/Tooltip';
+import { InfoTooltipWithLink } from '../components/InfoTooltipWithLink';
+import { calculatePaySummary } from '../../../calc-engine/src';
 
 type Frequency = 'weekly' | 'fortnightly' | 'monthly' | 'annually' | 'projection';
 type TaxYear = '2024-25' | '2025-26';
+type TaxResidency = 'resident' | 'non-resident' | 'whm';
 
 type Inputs = {
   taxYear: TaxYear;
   annualSalary: number;
   frequency: Frequency;
   hasHELP: boolean;
+  taxResidency: TaxResidency;
   includeSuper: boolean;
   superRate: number;
 };
@@ -49,6 +52,12 @@ const yesNoOptions: ToggleOption<'yes' | 'no'>[] = [
   { label: 'Yes', value: 'yes' },
 ];
 
+const taxResidencyOptions: ToggleOption<TaxResidency>[] = [
+  { label: 'Resident', value: 'resident' },
+  { label: 'Non-resident', value: 'non-resident' },
+  { label: 'WHM', value: 'whm' },
+];
+
 const periodsPerYear: Record<Frequency, number> = {
   weekly: 52,
   fortnightly: 26,
@@ -66,15 +75,6 @@ const frequencyLabels: Record<Frequency, string> = {
 };
 
 const clamp = (n: number, min: number, max: number) => Math.min(max, Math.max(min, n));
-
-const fmtAUD0 = (n: number) =>
-  new Intl.NumberFormat('en-AU', {
-    style: 'currency',
-    currency: 'AUD',
-    maximumFractionDigits: 0,
-  }).format(Number.isFinite(n) ? n : 0);
-
-const percentText = (value: number) => `${(clamp(value, 0, 1) * 100).toFixed(1)}%`;
 
 // Calculate the percentage through the current financial year (July 1 - June 30)
 const getFinancialYearProgress = (): number => {
@@ -102,94 +102,45 @@ const getFinancialYearProgress = (): number => {
   return Math.min(1, Math.max(0, daysPassed / totalDays));
 };
 
-const RESIDENT_BRACKETS: Record<
-  TaxYear,
-  Array<{ from: number; to?: number; baseTax: number; marginalRate: number }>
-> = {
-  '2024-25': [
-    { from: 0, to: 18200, baseTax: 0, marginalRate: 0 },
-    { from: 18200, to: 45000, baseTax: 0, marginalRate: 0.16 },
-    { from: 45000, to: 135000, baseTax: 4288, marginalRate: 0.3 },
-    { from: 135000, to: 190000, baseTax: 31288, marginalRate: 0.37 },
-    { from: 190000, baseTax: 51638, marginalRate: 0.45 },
-  ],
-  '2025-26': [
-    { from: 0, to: 18200, baseTax: 0, marginalRate: 0 },
-    { from: 18200, to: 45000, baseTax: 0, marginalRate: 0.16 },
-    { from: 45000, to: 135000, baseTax: 4288, marginalRate: 0.3 },
-    { from: 135000, to: 190000, baseTax: 31288, marginalRate: 0.37 },
-    { from: 190000, baseTax: 51638, marginalRate: 0.45 },
-  ],
-};
-
-const HELP_TABLE_2024_25: Array<{ from: number; to?: number; rate: number }> = [
-  { from: 0, to: 54435, rate: 0 },
-  { from: 54435, to: 62850, rate: 0.01 },
-  { from: 62850, to: 66620, rate: 0.02 },
-  { from: 66620, to: 70618, rate: 0.025 },
-  { from: 70618, to: 74855, rate: 0.03 },
-  { from: 74855, to: 79346, rate: 0.035 },
-  { from: 79346, to: 84107, rate: 0.04 },
-  { from: 84107, to: 89153, rate: 0.045 },
-  { from: 89153, to: 94502, rate: 0.05 },
-  { from: 94502, to: 100173, rate: 0.055 },
-  { from: 100173, to: 106183, rate: 0.06 },
-  { from: 106183, to: 112554, rate: 0.065 },
-  { from: 112554, to: 119307, rate: 0.07 },
-  { from: 119307, to: 126465, rate: 0.075 },
-  { from: 126465, to: 134053, rate: 0.08 },
-  { from: 134053, to: 142097, rate: 0.085 },
-  { from: 142097, to: 150623, rate: 0.09 },
-  { from: 150623, to: 159660, rate: 0.095 },
-  { from: 159660, rate: 0.1 },
-];
-
-function calcResidentIncomeTax(taxYear: TaxYear, taxableAnnual: number): number {
-  const brackets = RESIDENT_BRACKETS[taxYear];
-  const income = Math.max(0, taxableAnnual);
-  const bracket = brackets.find((b) => income >= b.from && (b.to === undefined || income <= b.to));
-  if (!bracket) return 0;
-  return Math.max(0, bracket.baseTax + (income - bracket.from) * bracket.marginalRate);
-}
-
-function calcHELPRepayment(_taxYear: TaxYear, repaymentIncome: number): number {
-  const income = Math.max(0, repaymentIncome);
-  const row = HELP_TABLE_2024_25.find((r) => income >= r.from && (r.to === undefined || income <= r.to));
-  const rate = row?.rate ?? 0;
-  return income * rate;
-}
-
-function calcMedicareLevy(taxableAnnual: number): number {
-  return Math.max(0, taxableAnnual) * 0.02;
-}
-
 function compute(inputs: Inputs): Results {
+  // Map frequency for calc-engine (it doesn't support 'annually' or 'projection')
+  const engineFrequency =
+    inputs.frequency === 'projection' || inputs.frequency === 'annually' ? 'monthly' : inputs.frequency;
+
+  // Map tax residency
+  const residency =
+    inputs.taxResidency === 'resident' ? 'resident' :
+    inputs.taxResidency === 'non-resident' ? 'nonResident' : 'workingHoliday';
+
+  // Call calc-engine
+  const response = calculatePaySummary({
+    taxYear: inputs.taxYear,
+    residency,
+    annualSalary: inputs.annualSalary,
+    frequency: engineFrequency,
+    hasHELP: inputs.hasHELP,
+    medicareExempt: false,
+    claimTaxFreeThreshold: inputs.taxResidency === 'resident',
+    deductions: 0,
+    includeSuper: inputs.includeSuper,
+    superRate: inputs.superRate,
+  });
+
+  // For 'annually' and 'projection', calculate periods ourselves
   const periods = periodsPerYear[inputs.frequency];
-  const grossAnnual = Math.max(0, inputs.annualSalary);
-  const taxableAnnual = grossAnnual;
-  const incomeTaxAnnual = calcResidentIncomeTax(inputs.taxYear, taxableAnnual);
-  const medicareAnnual = calcMedicareLevy(taxableAnnual);
-  const helpAnnual = inputs.hasHELP ? calcHELPRepayment(inputs.taxYear, taxableAnnual) : 0;
-  const totalWithheldAnnual = incomeTaxAnnual + medicareAnnual + helpAnnual;
-  const netAnnual = grossAnnual - totalWithheldAnnual;
-  const grossPerPeriod = grossAnnual / periods;
-  const withheldPerPeriod = totalWithheldAnnual / periods;
-  const netPerPeriod = netAnnual / periods;
-  const superPerPeriod = grossPerPeriod * inputs.superRate;
-  const effectiveRate = grossAnnual > 0 ? totalWithheldAnnual / grossAnnual : 0;
 
   return {
-    grossPerPeriod,
-    taxableAnnual,
-    incomeTaxAnnual,
-    medicareAnnual,
-    helpAnnual,
-    totalWithheldAnnual,
-    netAnnual,
-    netPerPeriod,
-    withheldPerPeriod,
-    superPerPeriod,
-    effectiveRate,
+    grossPerPeriod: response.annual.gross / periods,
+    taxableAnnual: response.annual.taxable,
+    incomeTaxAnnual: response.annual.incomeTax,
+    medicareAnnual: response.annual.medicareLevy,
+    helpAnnual: response.annual.help,
+    totalWithheldAnnual: response.annual.totalWithheld,
+    netAnnual: response.annual.net,
+    netPerPeriod: response.annual.net / periods,
+    withheldPerPeriod: response.annual.totalWithheld / periods,
+    superPerPeriod: response.annual.employerSuper / periods,
+    effectiveRate: response.effectiveTaxRate,
   };
 }
 
@@ -202,10 +153,11 @@ const incomeTableColumns: Array<{ key: Frequency; label: string }> = [
 
 export const PayCalculatorCard: React.FC = () => {
   const [inputs, setInputs] = useState<Inputs>({
-    taxYear: '2024-25',
+    taxYear: '2025-26',
     annualSalary: 90000,
     frequency: 'fortnightly',
     hasHELP: false,
+    taxResidency: 'resident',
     includeSuper: false,
     superRate: 0.115,
   });
@@ -219,41 +171,11 @@ export const PayCalculatorCard: React.FC = () => {
       ? inputs.annualSalary * getFinancialYearProgress()
       : inputs.annualSalary / periodsPerYear[inputs.frequency];
   const annualIncome = inputs.annualSalary;
-  const taxableLabel = formatCurrency(results.taxableAnnual);
-
-  const breakdownData = {
-    gross: results.grossPerPeriod,
-    incomeTax: results.incomeTaxAnnual / periodsPerYear[inputs.frequency],
-    medicare: results.medicareAnnual / periodsPerYear[inputs.frequency],
-    help: results.helpAnnual / periodsPerYear[inputs.frequency],
-    totalWithheld: results.withheldPerPeriod,
-    net: results.netPerPeriod,
-  };
-
-  const weeklyBreakdownData = {
-    gross: inputs.annualSalary / 52,
-    incomeTax: results.incomeTaxAnnual / 52,
-    medicare: results.medicareAnnual / 52,
-    help: results.helpAnnual / 52,
-    totalWithheld: results.totalWithheldAnnual / 52,
-    net: results.netAnnual / 52,
-  };
-
-  const annualBreakdownData = {
-    gross: results.grossPerPeriod * periodsPerYear[inputs.frequency],
-    incomeTax: results.incomeTaxAnnual,
-    medicare: results.medicareAnnual,
-    help: results.helpAnnual,
-    totalWithheld: results.totalWithheldAnnual,
-    net: results.netAnnual,
-  };
 
   // When frequency is annually or projection, show weekly in first column
   const isAnnualOrProjection = inputs.frequency === 'annually' || inputs.frequency === 'projection';
-  const firstColumnData = isAnnualOrProjection ? weeklyBreakdownData : breakdownData;
   const firstColumnLabel = isAnnualOrProjection ? 'Weekly' : frequencyLabels[inputs.frequency];
-
-  const timeframeLabel = `per ${frequencyLabels[inputs.frequency]}`;
+  const periodsForFirstColumn = isAnnualOrProjection ? 52 : periodsPerYear[inputs.frequency];
 
   const handleIncomeChange = (value: number) => {
     let annual: number;
@@ -352,13 +274,34 @@ export const PayCalculatorCard: React.FC = () => {
 
         <div className="space-y-4">
           <div className="flex items-center justify-between">
-            <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted">
-              HECS / HELP debt
-            </p>
+            <div className="flex items-center gap-1.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted">
+                HECS / HELP debt
+              </p>
+              <Tooltip content="Higher Education Loan Program repayments are calculated based on your income" />
+            </div>
             <ToggleGroup
               options={yesNoOptions}
               value={helpToggleValue}
               onChange={(value) => set('hasHELP', value === 'yes')}
+              size="sm"
+            />
+          </div>
+
+          <div className="flex items-center justify-between">
+            <div className="flex items-center gap-1.5">
+              <p className="text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted whitespace-nowrap">
+                Tax Residency
+              </p>
+              <InfoTooltipWithLink
+                content="Your tax residency status affects your tax rates and obligations."
+                targetSection="tax-residency"
+              />
+            </div>
+            <ToggleGroup
+              options={taxResidencyOptions}
+              value={inputs.taxResidency}
+              onChange={(value) => set('taxResidency', value)}
               size="sm"
             />
           </div>
@@ -370,17 +313,46 @@ export const PayCalculatorCard: React.FC = () => {
             <div className="mb-2 flex items-center justify-between gap-4">
               <span className="text-xs font-semibold text-slate-500 dark:text-dark-muted"></span>
               <div className="flex gap-4">
-                <span className="min-w-[80px] text-right text-xs font-semibold capitalize text-slate-500 dark:text-dark-muted">{firstColumnLabel}</span>
-                <span className="min-w-[80px] text-right text-xs font-semibold text-slate-500 dark:text-dark-muted">Annual</span>
+                <span className="min-w-[80px] text-right text-xs font-semibold capitalize text-slate-500 dark:text-dark-muted">
+                  {firstColumnLabel}
+                </span>
+                <span className="min-w-[80px] text-right text-xs font-semibold text-slate-500 dark:text-dark-muted">
+                  Annual
+                </span>
               </div>
             </div>
             <div className="space-y-2 text-sm">
               {[
-                { label: 'Gross', perPeriod: firstColumnData.gross, annual: annualBreakdownData.gross, showDivider: false },
-                { label: 'Income tax', perPeriod: firstColumnData.incomeTax, annual: annualBreakdownData.incomeTax, showDivider: false },
-                { label: 'Medicare levy', perPeriod: firstColumnData.medicare, annual: annualBreakdownData.medicare, showDivider: false },
-                { label: 'HELP / HECS', perPeriod: firstColumnData.help, annual: annualBreakdownData.help, showDivider: false },
-                { label: 'Total withheld', perPeriod: firstColumnData.totalWithheld, annual: annualBreakdownData.totalWithheld, showDivider: true },
+                {
+                  label: 'Gross',
+                  perPeriod: inputs.annualSalary / periodsForFirstColumn,
+                  annual: inputs.annualSalary,
+                  showDivider: false,
+                },
+                {
+                  label: 'Income tax',
+                  perPeriod: results.incomeTaxAnnual / periodsForFirstColumn,
+                  annual: results.incomeTaxAnnual,
+                  showDivider: false,
+                },
+                {
+                  label: 'Medicare levy',
+                  perPeriod: results.medicareAnnual / periodsForFirstColumn,
+                  annual: results.medicareAnnual,
+                  showDivider: false,
+                },
+                {
+                  label: 'HELP / HECS',
+                  perPeriod: results.helpAnnual / periodsForFirstColumn,
+                  annual: results.helpAnnual,
+                  showDivider: false,
+                },
+                {
+                  label: 'Total withheld',
+                  perPeriod: results.totalWithheldAnnual / periodsForFirstColumn,
+                  annual: results.totalWithheldAnnual,
+                  showDivider: true,
+                },
               ].map((row) => (
                 <div key={row.label}>
                   {row.showDivider && (
@@ -389,8 +361,12 @@ export const PayCalculatorCard: React.FC = () => {
                   <div className="flex items-center justify-between gap-4">
                     <span className="text-slate-700 dark:text-dark-text">{row.label}</span>
                     <div className="flex gap-4">
-                      <span className="min-w-[80px] text-right font-semibold text-slate-900 dark:text-white">{fmtAUD0(row.perPeriod)}</span>
-                      <span className="min-w-[80px] text-right font-semibold text-slate-900 dark:text-white">{fmtAUD0(row.annual)}</span>
+                      <span className="min-w-[80px] text-right font-semibold text-slate-900 dark:text-white">
+                        {formatCurrency(row.perPeriod)}
+                      </span>
+                      <span className="min-w-[80px] text-right font-semibold text-slate-900 dark:text-white">
+                        {formatCurrency(row.annual)}
+                      </span>
                     </div>
                   </div>
                 </div>
@@ -398,59 +374,60 @@ export const PayCalculatorCard: React.FC = () => {
             </div>
           </div>
 
-          <CollapsibleContainer title="Pay Breakdown (Visualised)" collapsible defaultOpen={false}>
-            <IncomeBreakdownChart
-              netPay={results.netAnnual}
-              incomeTax={results.incomeTaxAnnual}
-              medicareLevy={results.medicareAnnual}
-              helpHecs={results.helpAnnual}
-            />
-          </CollapsibleContainer>
-
-          <div className="rounded-2xl border border-slate-200/80 bg-slate-50 px-4 py-3 text-slate-600 shadow-sm dark:border-dark-border dark:bg-dark-surfaceAlt dark:text-dark-text">
-            <p className="mb-2 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted">
-              Take-home pay
-            </p>
-            <div className="flex items-end justify-between gap-4">
-              <div>
-                <p className="text-[11px] capitalize text-slate-500 dark:text-dark-muted">{firstColumnLabel}</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                  {fmtAUD0(firstColumnData.net)}
-                </p>
-              </div>
-              <div className="text-right">
-                <p className="text-[11px] text-slate-500 dark:text-dark-muted">Annual</p>
-                <p className="text-2xl font-bold text-slate-900 dark:text-white">
-                  {fmtAUD0(annualBreakdownData.net)}
-                </p>
-              </div>
+          <div>
+            <div className="mb-1 flex items-center gap-1.5">
+              <label className="text-xs font-semibold text-slate-500 dark:text-dark-muted">Take-home pay</label>
+              <InfoTooltipWithLink
+                content="These are estimates only. Actual amounts may vary."
+                targetSection="financial-disclaimer"
+              />
             </div>
+            <table className="w-full table-fixed text-left text-xs text-slate-600 dark:text-dark-text">
+              <thead>
+                <tr>
+                  {incomeTableColumns.map((column) => (
+                    <th key={column.key} className="pb-1">
+                      {column.label}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  {incomeTableColumns.map((column) => {
+                    const value =
+                      column.key === 'annually'
+                        ? results.netAnnual
+                        : results.netAnnual / periodsPerYear[column.key as Frequency];
+                    return (
+                      <td key={column.key} className="py-1">
+                        {formatCurrency(value)}
+                      </td>
+                    );
+                  })}
+                </tr>
+              </tbody>
+            </table>
           </div>
 
-          <div className="rounded-2xl border border-slate-200/80 bg-slate-50 px-4 py-3 text-slate-600 dark:border-dark-border dark:bg-dark-surfaceAlt dark:text-dark-text">
-            <p className="mb-3 text-xs font-semibold uppercase tracking-wide text-slate-500 dark:text-dark-muted">
-              Annual Summary
-            </p>
-            <div className="flex items-center justify-between text-sm">
-              <div className="flex-1 text-center">
-                <p className="text-xs text-slate-500 dark:text-dark-muted">Gross Pay</p>
-                <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
-                  {fmtAUD0(results.taxableAnnual)}
-                </p>
-              </div>
-              <div className="flex-1 text-center">
-                <p className="text-xs text-slate-500 dark:text-dark-muted">Net Pay</p>
-                <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
-                  {fmtAUD0(results.netAnnual)}
-                </p>
-              </div>
-              <div className="flex-1 text-center">
-                <p className="text-xs text-slate-500 dark:text-dark-muted">Nominal Tax Rate</p>
-                <p className="mt-1 text-lg font-bold text-slate-900 dark:text-white">
-                  {percentText(results.effectiveRate)}
-                </p>
-              </div>
-            </div>
+          <div>
+            <label className="mb-1 block text-xs font-semibold text-slate-500 dark:text-dark-muted">Annual Summary</label>
+            <table className="w-full table-fixed text-left text-xs text-slate-600 dark:text-dark-text">
+              <thead>
+                <tr>
+                  <th className="pb-1">Gross Pay</th>
+                  <th className="pb-1">Net Pay</th>
+                  <th className="pb-1">Nominal Tax Rate</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td className="py-1">{formatCurrency(results.taxableAnnual)}</td>
+                  <td className="py-1">{formatCurrency(results.netAnnual)}</td>
+                  <td className="py-1">{formatPercent(results.effectiveRate)}</td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
     </div>

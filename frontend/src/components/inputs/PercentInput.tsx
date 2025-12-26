@@ -1,5 +1,5 @@
 import React from 'react';
-import { toNumberOrZero } from '../../lib/formatters';
+import { formatPercentInput, toNumberOrZero } from '../../lib/formatters';
 
 interface PercentInputProps {
   label: string;
@@ -43,7 +43,8 @@ export const PercentInput: React.FC<PercentInputProps> = ({
         <input
           id={id}
           type="number"
-          value={displayValue.toFixed(asPercentage ? 2 : 0)}
+          inputMode="decimal"
+          value={asPercentage ? displayValue.toFixed(2) : formatPercentInput(displayValue / 100)}
           onChange={handleChange}
           step={step}
           className="w-full bg-transparent focus:outline-none"

@@ -667,7 +667,7 @@ export const PayCalculator: React.FC = () => {
               padding: '0.9rem 1rem'
             }}
           >
-            <div style={{ fontWeight: 600, marginBottom: 4 }}>Pay summary</div>
+            <div style={{ fontWeight: 600, marginBottom: 4 }}>Pay Summary</div>
             <div
               style={{
                 display: 'grid',
