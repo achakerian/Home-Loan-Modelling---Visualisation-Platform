@@ -45,7 +45,7 @@ const items: FeatureAccordionItem[] = [
 
 export const SuperPage: React.FC = () => {
   return (
-    <PageContainer>
+    <PageContainer borderColor="bg-green-500">
       <FeatureAccordion items={items} initialOpen={null} />
     </PageContainer>
   );

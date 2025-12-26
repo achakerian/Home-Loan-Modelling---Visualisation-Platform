@@ -19,7 +19,7 @@ const items: FeatureAccordionItem[] = [
 
 export const PayTaxPage: React.FC = () => {
   return (
-    <PageContainer>
+    <PageContainer borderColor="bg-violet-500">
       <FeatureAccordion items={items} initialOpen={null} />
     </PageContainer>
   );
