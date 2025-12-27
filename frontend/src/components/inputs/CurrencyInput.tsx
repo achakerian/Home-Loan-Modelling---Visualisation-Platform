@@ -9,6 +9,7 @@ interface CurrencyInputProps {
   max?: number;
   id?: string;
   className?: string;
+  suffix?: string;
 }
 
 export const CurrencyInput: React.FC<CurrencyInputProps> = ({
@@ -19,6 +20,7 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
   max,
   id,
   className = '',
+  suffix,
 }) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const digitsOnly = e.target.value.replace(/[^0-9]/g, '');
@@ -44,6 +46,7 @@ export const CurrencyInput: React.FC<CurrencyInputProps> = ({
           onChange={handleChange}
           className="w-full bg-transparent focus:outline-none"
         />
+        {suffix && <span className="ml-1 text-sm text-slate-400">{suffix}</span>}
       </div>
     </label>
   );
