@@ -47,7 +47,7 @@ export const PercentInput: React.FC<PercentInputProps> = ({
           value={asPercentage ? displayValue.toFixed(2) : formatPercentInput(displayValue / 100)}
           onChange={handleChange}
           step={step}
-          className="w-full bg-transparent focus:outline-none"
+          className="w-full bg-transparent text-right focus:outline-none"
         />
         <span className="ml-1 text-sm text-slate-400">%</span>
       </div>
